@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pahana Edu  - User Management</title>
+    <title>Pahana Edu - User Management</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome Icons -->
@@ -220,7 +220,6 @@
             <a class="navbar-brand" href="#">
                 <i class="fas fa-users-cog me-2"></i>Customer Management
             </a>
-            
         </div>
     </nav>
 
@@ -324,7 +323,6 @@
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Account Number</th>
-                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -377,10 +375,6 @@
                             <div class="col-md-6">
                                 <label class="form-label">Phone Number</label>
                                 <input type="tel" id="updatePhone" class="form-control">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Account Number</label>
-                                <input type="text" id="updateAccountNumber" class="form-control" required>
                             </div>
                         </div>
                     </form>
@@ -440,10 +434,6 @@
                                 <label class="form-label">Phone Number</label>
                                 <input type="tel" id="createPhone" class="form-control">
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Account Number</label>
-                                <input type="text" id="createAccountNumber" class="form-control" required>
-                            </div>
                         </div>
                     </form>
                 </div>
@@ -464,7 +454,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-6">
-                    <p class="mb-0">© 2025 Pahana Edu . All rights reserved.</p>
+                    <p class="mb-0">© 2025 Pahana Edu. All rights reserved.</p>
                 </div>
                 <div class="col-md-6 text-md-end">
                     <a href="#" class="text-white text-decoration-none me-3">Privacy Policy</a>
@@ -477,367 +467,350 @@
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script>
-    const API_BASE_URL = 'http://localhost:8080/billingServices/resources/customers';
+        const API_BASE_URL = 'http://localhost:8080/billingServices/resources/customers';
 
-    // Global variables for modals
-    let updateModal, createModal;
+        // Global variables for modals
+        let updateModal, createModal;
 
-    // Initialize modals
-    document.addEventListener('DOMContentLoaded', function() {
-        updateModal = new bootstrap.Modal(document.getElementById('updateModal'));
-        createModal = new bootstrap.Modal(document.getElementById('createModal'));
-        fetchCustomers();
-    });
+        // Initialize modals
+        document.addEventListener('DOMContentLoaded', function() {
+            updateModal = new bootstrap.Modal(document.getElementById('updateModal'));
+            createModal = new bootstrap.Modal(document.getElementById('createModal'));
+            fetchCustomers();
+        });
 
-    // Show/Hide loading spinner
-    function showLoading() {
-        document.getElementById('loadingSpinner').classList.remove('d-none');
-    }
-
-    function hideLoading() {
-        document.getElementById('loadingSpinner').classList.add('d-none');
-    }
-
-    // Show toast notification
-    function showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = `toast align-items-center text-white bg-${type} border-0`;
-        toast.setAttribute('role', 'alert');
-        toast.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
-                    ${message}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        `;
-
-        const container = document.getElementById('toastContainer') || createToastContainer();
-        container.appendChild(toast);
-
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-
-        toast.addEventListener('hidden.bs.toast', () => toast.remove());
-    }
-
-    function createToastContainer() {
-        const container = document.createElement('div');
-        container.id = 'toastContainer';
-        container.className = 'toast-container position-fixed top-0 end-0 p-3';
-        container.style.zIndex = '9999';
-        document.body.appendChild(container);
-        return container;
-    }
-
-    // Fetch and display all customers
-    async function fetchCustomers() {
-        showLoading();
-        try {
-            const response = await fetch(API_BASE_URL);
-            const customers = await response.json();
-            displayCustomers(customers);
-            updateTotalCount(customers.length);
-        } catch (error) {
-            console.error('Error fetching customers:', error);
-            showToast('Failed to fetch customers', 'danger');
-        } finally {
-            hideLoading();
+        // Show/Hide loading spinner
+        function showLoading() {
+            document.getElementById('loadingSpinner').classList.remove('d-none');
         }
-    }
 
-    // Search customers
-    async function searchCustomers(criteria) {
-        showLoading();
-        try {
-            const params = new URLSearchParams();
-            Object.keys(criteria).forEach(key => {
-                if (criteria[key]) params.append(key, criteria[key]);
-            });
+        function hideLoading() {
+            document.getElementById('loadingSpinner').classList.add('d-none');
+        }
 
-            const response = await fetch(`${API_BASE_URL}/search?${params.toString()}`);
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type} border-0`;
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
 
-            if (response.status === 403) {
-                showToast('Access denied: Admin privileges required for search', 'warning');
+            const container = document.getElementById('toastContainer') || createToastContainer();
+            container.appendChild(toast);
+
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+
+            toast.addEventListener('hidden.bs.toast', () => toast.remove());
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            container.style.zIndex = '9999';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        // Fetch and display all customers
+        async function fetchCustomers() {
+            showLoading();
+            try {
+                const response = await fetch(API_BASE_URL);
+                const customers = await response.json();
+                displayCustomers(customers);
+                updateTotalCount(customers.length);
+            } catch (error) {
+                console.error('Error fetching customers:', error);
+                showToast('Failed to fetch customers', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Search customers
+        async function searchCustomers(criteria) {
+            showLoading();
+            try {
+                const params = new URLSearchParams();
+                Object.keys(criteria).forEach(key => {
+                    if (criteria[key]) params.append(key, criteria[key]);
+                });
+
+                const response = await fetch(`${API_BASE_URL}/search?${params.toString()}`);
+                if (response.status === 403) {
+                    showToast('Access denied: Admin privileges required for search', 'warning');
+                    return;
+                }
+
+                const customers = await response.json();
+                displayCustomers(customers);
+                updateTotalCount(customers.length);
+            } catch (error) {
+                console.error('Error searching customers:', error);
+                showToast('Failed to search customers', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Display customers in table
+        function displayCustomers(customers) {
+            const tableBody = document.getElementById('customerTableBody');
+            tableBody.innerHTML = '';
+
+            if (customers.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="11" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-users fa-2x mb-3"></i>
+                                <h5>No customers found</h5>
+                                <p>Try adjusting your search criteria or create a new account.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
                 return;
             }
 
-            const customers = await response.json();
-            displayCustomers(customers);
-            updateTotalCount(customers.length);
-        } catch (error) {
-            console.error('Error searching customers:', error);
-            showToast('Failed to search customers', 'danger');
-        } finally {
-            hideLoading();
-        }
-    }
+            customers.forEach(customer => {
+                const row = document.createElement('tr');
+                const status = customer.status || 'Pending';
+                const statusClass = `status-${status.toLowerCase()}`;
 
-    // Display customers in table
-    function displayCustomers(customers) {
-        const tableBody = document.getElementById('customerTableBody');
-        tableBody.innerHTML = '';
-
-        if (customers.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="11" class="text-center py-5">
-                        <div class="text-muted">
-                            <i class="fas fa-users fa-2x mb-3"></i>
-                            <h5>No customers found</h5>
-                            <p>Try adjusting your search criteria or create a new account.</p>
+                row.innerHTML = `
+                    <td class="fw-medium">${customer.id}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center me-2">
+                                <i class="fas fa-user text-white fs-6"></i>
+                            </div>
+                            <span class="fw-medium">${customer.name}</span>
                         </div>
                     </td>
-                </tr>
-            `;
-            return;
-        }
-
-        customers.forEach(customer => {
-            const row = document.createElement('tr');
-            const status = customer.status || 'Pending';
-            const statusClass = `status-${status.toLowerCase()}`;
-
-            row.innerHTML = `
-                <td class="fw-medium">${customer.id}</td>
-                <td>
-                    <div class="d-flex align-items-center">
-                        <div class="avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center me-2">
-                            <i class="fas fa-user text-white fs-6"></i>
+                    <td>${customer.gender}</td>
+                    <td>${formatDate(customer.dob)}</td>
+                    <td class="text-truncate" style="max-width: 200px;" title="${customer.address}">
+                        ${customer.address}
+                    </td>
+                    <td>${customer.nic}</td>
+                    <td>${customer.email}</td>
+                    <td>${customer.phone || '-'}</td>
+                    <td>${customer.accountNumber || '-'}</td>
+                    <td>
+                        <div class="action-buttons d-flex gap-1">
+                            
+                            <button onclick="openUpdateModal(${customer.id})" class="btn btn-primary btn-sm" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteCustomer(${customer.id})" class="btn btn-danger btn-sm" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
-                        <span class="fw-medium">${customer.name}</span>
-                    </div>
-                </td>
-                <td>${customer.gender}</td>
-                <td>${formatDate(customer.dob)}</td>
-                <td class="text-truncate" style="max-width: 200px;" title="${customer.address}">
-                    ${customer.address}
-                </td>
-                <td>${customer.nic}</td>
-                <td>${customer.email}</td>
-                <td>${customer.phone || '-'}</td>
-                <td>${customer.accountNumber || '-'}</td>
-                <td>
-                    <span class="status-badge ${statusClass}">
-                        ${status}
-                    </span>
-                </td>
-                <td>
-                    <div class="action-buttons d-flex gap-1">
-                        <button onclick="approveCustomer(${customer.id})" class="btn btn-success btn-sm" title="Approve">
-                            <i class="fas fa-check"></i>
-                        </button>
-                        <button onclick="rejectCustomer(${customer.id})" class="btn btn-warning btn-sm" title="Reject">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <button onclick="openUpdateModal(${customer.id})" class="btn btn-primary btn-sm" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="deleteCustomer(${customer.id})" class="btn btn-danger btn-sm" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            `;
-            tableBody.appendChild(row);
-        });
-    }
-
-    // Update total count
-    function updateTotalCount(count) {
-        document.getElementById('totalCount').textContent = `Total: ${count}`;
-    }
-
-    // Format date
-    function formatDate(dateString) {
-        if (!dateString) return '-';
-        return new Date(dateString).toLocaleDateString();
-    }
-
-    // Approve customer
-    async function approveCustomer(id) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/${id}/approve`, { method: 'PUT' });
-            const result = await response.json();
-            if (response.ok) {
-                showToast(result.message || 'Customer approved successfully');
-                fetchCustomers();
-            } else {
-                showToast(result.error || 'Failed to approve customer', 'danger');
-            }
-        } catch (error) {
-            console.error('Error approving customer:', error);
-            showToast('Failed to approve customer', 'danger');
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
         }
-    }
 
-    // Reject customer
-    async function rejectCustomer(id) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/${id}/reject`, { method: 'PUT' });
-            const result = await response.json();
-            if (response.ok) {
-                showToast(result.message || 'Customer rejected successfully');
-                fetchCustomers();
-            } else {
-                showToast(result.error || 'Failed to reject customer', 'danger');
-            }
-        } catch (error) {
-            console.error('Error rejecting customer:', error);
-            showToast('Failed to reject customer', 'danger');
+        // Update total count
+        function updateTotalCount(count) {
+            document.getElementById('totalCount').textContent = `Total: ${count}`;
         }
-    }
 
-    // Delete customer
-    async function deleteCustomer(id) {
-        if (confirm('Are you sure you want to delete this customer? This action cannot be undone.')) {
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            return new Date(dateString).toLocaleDateString();
+        }
+
+        // Approve customer
+        async function approveCustomer(id) {
             try {
-                const response = await fetch(`${API_BASE_URL}/${id}`, { method: 'DELETE' });
+                const response = await fetch(`${API_BASE_URL}/${id}/approve`, { method: 'PUT' });
                 const result = await response.json();
                 if (response.ok) {
-                    showToast(result.message || 'Customer deleted successfully');
+                    showToast(result.message || 'Customer approved successfully');
                     fetchCustomers();
                 } else {
-                    showToast(result.error || 'Failed to delete customer', 'danger');
+                    showToast(result.error || 'Failed to approve customer', 'danger');
                 }
             } catch (error) {
-                console.error('Error deleting customer:', error);
-                showToast('Failed to delete customer', 'danger');
+                console.error('Error approving customer:', error);
+                showToast('Failed to approve customer', 'danger');
             }
         }
-    }
 
-    // Open update modal with customer data
-    async function openUpdateModal(id) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/${id}`);
-            const customer = await response.json();
-            if (response.ok) {
-                document.getElementById('updateId').value = customer.id;
-                document.getElementById('updateName').value = customer.name;
-                document.getElementById('updateGender').value = customer.gender;
-                document.getElementById('updateDob').value = customer.dob;
-                document.getElementById('updateAddress').value = customer.address;
-                document.getElementById('updateNic').value = customer.nic;
-                document.getElementById('updateEmail').value = customer.email;
-                document.getElementById('updatePhone').value = customer.phone || '';
-                document.getElementById('updateAccountNumber').value = customer.accountNumber || '';
-                updateModal.show();
-            } else {
-                showToast(customer.error || 'Failed to fetch customer details', 'danger');
+        // Reject customer
+        async function rejectCustomer(id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/${id}/reject`, { method: 'PUT' });
+                const result = await response.json();
+                if (response.ok) {
+                    showToast(result.message || 'Customer rejected successfully');
+                    fetchCustomers();
+                } else {
+                    showToast(result.error || 'Failed to reject customer', 'danger');
+                }
+            } catch (error) {
+                console.error('Error rejecting customer:', error);
+                showToast('Failed to reject customer', 'danger');
             }
-        } catch (error) {
-            console.error('Error fetching customer for update:', error);
-            showToast('Failed to fetch customer details', 'danger');
         }
-    }
 
-    // Handle update form submission
-    document.getElementById('updateForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('updateId').value;
-        const updatedCustomer = {
-            id: parseInt(id),
-            name: document.getElementById('updateName').value,
-            gender: document.getElementById('updateGender').value,
-            dob: document.getElementById('updateDob').value,
-            address: document.getElementById('updateAddress').value,
-            nic: document.getElementById('updateNic').value,
-            email: document.getElementById('updateEmail').value,
-            phone: document.getElementById('updatePhone').value || null,
-            accountNumber: document.getElementById('updateAccountNumber').value
-        };
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedCustomer)
-            });
-            const result = await response.json();
-            if (response.ok) {
-                showToast(result.message || 'Customer updated successfully');
-                updateModal.hide();
-                fetchCustomers();
-            } else {
-                showToast(result.error || 'Failed to update customer', 'danger');
+        // Delete customer
+        async function deleteCustomer(id) {
+            if (confirm('Are you sure you want to delete this customer? This action cannot be undone.')) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/${id}`, { method: 'DELETE' });
+                    const result = await response.json();
+                    if (response.ok) {
+                        showToast(result.message || 'Customer deleted successfully');
+                        fetchCustomers();
+                    } else {
+                        showToast(result.error || 'Failed to delete customer', 'danger');
+                    }
+                } catch (error) {
+                    console.error('Error deleting customer:', error);
+                    showToast('Failed to delete customer', 'danger');
+                }
             }
-        } catch (error) {
-            console.error('Error updating customer:', error);
-            showToast('Failed to update customer', 'danger');
         }
-    });
 
-    // Open create modal
-    document.getElementById('createAccountBtn').addEventListener('click', () => {
-        document.getElementById('createForm').reset();
-        createModal.show();
-    });
-
-    // Handle create form submission
-    document.getElementById('createForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const newCustomer = {
-            name: document.getElementById('createName').value,
-            gender: document.getElementById('createGender').value,
-            dob: document.getElementById('createDob').value,
-            address: document.getElementById('createAddress').value,
-            nic: document.getElementById('createNic').value,
-            email: document.getElementById('createEmail').value,
-            phone: document.getElementById('createPhone').value || null,
-            accountNumber: document.getElementById('createAccountNumber').value
-        };
-
-        try {
-            const response = await fetch(API_BASE_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newCustomer)
-            });
-            const result = await response.json();
-            if (response.ok) {
-                showToast('Customer created successfully');
-                createModal.hide();
-                fetchCustomers();
-            } else {
-                showToast(result.error || 'Failed to create customer', 'danger');
+        // Open update modal with customer data
+        async function openUpdateModal(id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/${id}`);
+                const customer = await response.json();
+                if (response.ok) {
+                    document.getElementById('updateId').value = customer.id;
+                    document.getElementById('updateName').value = customer.name;
+                    document.getElementById('updateGender').value = customer.gender;
+                    document.getElementById('updateDob').value = customer.dob;
+                    document.getElementById('updateAddress').value = customer.address;
+                    document.getElementById('updateNic').value = customer.nic;
+                    document.getElementById('updateEmail').value = customer.email;
+                    document.getElementById('updatePhone').value = customer.phone || '';
+                    updateModal.show();
+                } else {
+                    showToast(customer.error || 'Failed to fetch customer details', 'danger');
+                }
+            } catch (error) {
+                console.error('Error fetching customer for update:', error);
+                showToast('Failed to fetch customer details', 'danger');
             }
-        } catch (error) {
-            console.error('Error creating customer:', error);
-            showToast('Failed to create customer', 'danger');
         }
-    });
 
-    // Handle search form submission
-    document.getElementById('searchForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const criteria = {
-            name: document.getElementById('searchName').value,
-            gender: document.getElementById('searchGender').value,
-            nic: document.getElementById('searchNic').value,
-            email: document.getElementById('searchEmail').value,
-            phone: document.getElementById('searchPhone').value,
-            accountNumber: document.getElementById('searchAccountNumber').value,
-            status: document.getElementById('searchStatus').value
-        };
-        await searchCustomers(criteria);
-    });
+        // Handle update form submission
+        document.getElementById('updateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('updateId').value;
+            const updatedCustomer = {
+                id: parseInt(id),
+                name: document.getElementById('updateName').value,
+                gender: document.getElementById('updateGender').value,
+                dob: document.getElementById('updateDob').value,
+                address: document.getElementById('updateAddress').value,
+                nic: document.getElementById('updateNic').value,
+                email: document.getElementById('updateEmail').value,
+                phone: document.getElementById('updatePhone').value || null
+            };
 
-    // Clear search form
-    document.getElementById('clearSearchBtn').addEventListener('click', () => {
-        document.getElementById('searchForm').reset();
-        fetchCustomers();
-    });
+            try {
+                const response = await fetch(`${API_BASE_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedCustomer)
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    showToast(result.message || 'Customer updated successfully');
+                    updateModal.hide();
+                    fetchCustomers();
+                } else {
+                    showToast(result.error || 'Failed to update customer', 'danger');
+                }
+            } catch (error) {
+                console.error('Error updating customer:', error);
+                showToast('Failed to update customer', 'danger');
+            }
+        });
 
-    // Refresh button
-    document.getElementById('refreshBtn').addEventListener('click', () => {
-        document.getElementById('searchForm').reset();
-        fetchCustomers();
-    });
+        // Open create modal
+        document.getElementById('createAccountBtn').addEventListener('click', () => {
+            document.getElementById('createForm').reset();
+            createModal.show();
+        });
 
-    // Initial fetch
-    fetchCustomers();
+        // Handle create form submission
+        document.getElementById('createForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newCustomer = {
+                name: document.getElementById('createName').value,
+                gender: document.getElementById('createGender').value,
+                dob: document.getElementById('createDob').value,
+                address: document.getElementById('createAddress').value,
+                nic: document.getElementById('createNic').value,
+                email: document.getElementById('createEmail').value,
+                phone: document.getElementById('createPhone').value || null
+            };
+
+            try {
+                const response = await fetch(API_BASE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newCustomer)
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    showToast('Customer created successfully');
+                    createModal.hide();
+                    fetchCustomers();
+                } else {
+                    showToast(result.error || 'Failed to create customer', 'danger');
+                }
+            } catch (error) {
+                console.error('Error creating customer:', error);
+                showToast('Failed to create customer', 'danger');
+            }
+        });
+
+        // Handle search form submission
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const criteria = {
+                name: document.getElementById('searchName').value,
+                gender: document.getElementById('searchGender').value,
+                nic: document.getElementById('searchNic').value,
+                email: document.getElementById('searchEmail').value,
+                phone: document.getElementById('searchPhone').value,
+                accountNumber: document.getElementById('searchAccountNumber').value,
+                status: document.getElementById('searchStatus').value
+            };
+            await searchCustomers(criteria);
+        });
+
+        // Clear search form
+        document.getElementById('clearSearchBtn').addEventListener('click', () => {
+            document.getElementById('searchForm').reset();
+            fetchCustomers();
+        });
+
+        // Refresh button
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            document.getElementById('searchForm').reset();
+            fetchCustomers();
+        });
     </script>
 </body>
 </html>
