@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pahana Edu - Category Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2B2D42;
+            --primary-dark: #1D1E2C;
+            --secondary: #8D99AE;
+            --accent: #EF233C;
+            --background: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-primary: #2B2D42;
+            --text-secondary: #6B7280;
+        }
+
+        body {
+            background: var(--background);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            background: var(--card-bg);
+        }
+
+        .card-header {
+            background: var(--primary);
+            color: white;
+            border-radius: 12px 12px 0 0;
+            padding: 1.25rem 1.5rem;
+            border-bottom: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .btn-outline-primary {
+            border-color: var(--primary);
+            color: var(--primary);
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .table {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background: var(--primary);
+            color: white;
+            font-weight: 500;
+            text-transform: none;
+            padding: 1rem;
+            border: none;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid #E5E7EB;
+            transition: background 0.2s ease;
+        }
+
+        .table tbody tr:hover {
+            background: #F9FAFB;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #D1D5DB;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            height: 46px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(43,45,66,0.1);
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+        }
+
+        .modal-header {
+            background: var(--primary);
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .spinner-overlay {
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 10000;
+        }
+
+        .action-buttons .btn {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: var(--primary);
+            color: white;
+            padding: 10px;
+        }
+
+        .avatar-sm {
+            width: 32px;
+            height: 32px;
+        }
+
+        .search-buttons .btn {
+            height: 46px;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-folder-open me-2"></i>Category Management
+            </a>
+        </div>
+    </nav>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="spinner-overlay d-none">
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-3">
+                <h5>Loading categories...</h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid py-5" style="margin-top: 20px; margin-bottom: 20px;">
+        <!-- Search Section -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header">
+                <h5 class="mb-0">Search & Filter Categories</h5>
+            </div>
+            <div class="card-body">
+                <form id="searchForm">
+                    <div class="d-flex flex-wrap gap-2 align-items-end">
+                        <div class="flex-fill">
+                            <label class="form-label">Name</label>
+                            <input type="text" id="searchName" class="form-control" placeholder="Search by name...">
+                        </div>
+                        <div class="flex-fill">
+                            <label class="form-label">Description</label>
+                            <input type="text" id="searchDescription" class="form-control" placeholder="Search by description...">
+                        </div>
+                        <div class="d-flex gap-2 align-self-end">
+                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                <i class="fas fa-search me-1"></i>Search
+                            </button>
+                            <button type="button" id="clearSearchBtn" class="btn btn-outline-primary flex-grow-1">
+                                <i class="fas fa-eraser me-1"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="row mb-4">
+            <div class="col-12 d-flex align-items-center gap-3">
+                <button id="createCategoryBtn" class="btn btn-primary">
+                    <i class="fas fa-plus-circle me-2"></i>Create New Category
+                </button>
+                <button id="refreshBtn" class="btn btn-outline-primary">
+                    <i class="fas fa-sync-alt me-2"></i>Refresh
+                </button>
+                <span id="totalCount" class="badge bg-primary fs-6">Total: 0</span>
+            </div>
+        </div>
+
+        <!-- Categories Table -->
+        <div class="card fade-in">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table id="categoryTable" class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Created At</th>
+                                <th>Updated At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoryTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Modal -->
+    <div class="modal fade" id="updateModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Category Information</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateForm">
+                        <input type="hidden" id="updateId">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Category Name</label>
+                                <input type="text" id="updateName" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea id="updateDescription" class="form-control" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                    <button type="submit" form="updateForm" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Modal -->
+    <div class="modal fade" id="createModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Category</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createForm">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Category Name</label>
+                                <input type="text" id="createName" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea id="createDescription" class="form-control" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                    <button type="submit" form="createForm" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Create Category
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">© 2025 Pahana Edu. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white text-decoration-none me-3">Privacy Policy</a>
+                    <a href="#" class="text-white text-decoration-none">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+    const API_BASE_URL = 'http://localhost:8080/billingServices/resources/categories';
+
+    // Global variables for modals
+    let updateModal, createModal;
+
+    // Initialize modals
+    document.addEventListener('DOMContentLoaded', function() {
+        updateModal = new bootstrap.Modal(document.getElementById('updateModal'));
+        createModal = new bootstrap.Modal(document.getElementById('createModal'));
+        fetchCategories();
+    });
+
+    // Show/Hide loading spinner
+    function showLoading() {
+        document.getElementById('loadingSpinner').classList.remove('d-none');
+    }
+
+    function hideLoading() {
+        document.getElementById('loadingSpinner').classList.add('d-none');
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-white bg-${type} border-0`;
+        toast.setAttribute('role', 'alert');
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        
+        const container = document.getElementById('toastContainer') || createToastContainer();
+        container.appendChild(toast);
+        
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        toast.addEventListener('hidden.bs.toast', () => toast.remove());
+    }
+
+    function createToastContainer() {
+        const container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container position-fixed top-0 end-0 p-3';
+        container.style.zIndex = '9999';
+        document.body.appendChild(container);
+        return container;
+    }
+
+    // Fetch and display all categories
+    async function fetchCategories() {
+        showLoading();
+        try {
+            const response = await fetch(API_BASE_URL);
+            const categories = await response.json();
+            displayCategories(categories);
+            updateTotalCount(categories.length);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            showToast('Failed to fetch categories', 'danger');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Search categories
+    async function searchCategories(criteria) {
+        showLoading();
+        try {
+            const params = new URLSearchParams();
+            Object.keys(criteria).forEach(key => {
+                if (criteria[key]) params.append(key, criteria[key]);
+            });
+            
+            const response = await fetch(`${API_BASE_URL}/search?${params.toString()}`);
+            const categories = await response.json();
+            displayCategories(categories);
+            updateTotalCount(categories.length);
+        } catch (error) {
+            console.error('Error searching categories:', error);
+            showToast('Failed to search categories', 'danger');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Display categories in table
+    function displayCategories(categories) {
+        const tableBody = document.getElementById('categoryTableBody');
+        tableBody.innerHTML = '';
+        
+        if (categories.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <div classDistributor of the text-muted">
+                            <i class="fas fa-folder-open fa-2x mb-3"></i>
+                            <h5>No categories found</h5>
+                            <p>Try adjusting your search criteria or create a new category.</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        categories.forEach(category => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="fw-medium">${category.id}</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center me-2">
+                            <i class="fas fa-folder text-white fs-6"></i>
+                        </div>
+                        <span class="fw-medium">${category.name}</span>
+                    </div>
+                </td>
+                <td class="text-truncate" style="max-width: 300px;" title="${category.description || ''}">
+                    ${category.description || '-'}
+                </td>
+                <td>${formatDate(category.createdAt)}</td>
+                <td>${formatDate(category.updatedAt)}</td>
+                <td>
+                    <div class="action-buttons d-flex gap-1">
+                        <button onclick="openUpdateModal(${category.id})" class="btn btn-primary btn-sm" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteCategory(${category.id})" class="btn btn-danger btn-sm" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    // Update total count
+    function updateTotalCount(count) {
+        document.getElementById('totalCount').textContent = `Total: ${count}`;
+    }
+
+    // Format date
+    function formatDate(dateString) {
+        if (!dateString) return '-';
+        return new Date(dateString).toLocaleDateString();
+    }
+
+    // Delete category
+    async function deleteCategory(id) {
+        if (confirm('Are you sure you want to delete this category? This action cannot be undone. Items linked to this category will have their category set to null.')) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/${id}`, { method: 'DELETE' });
+                const result = await response.json();
+                if (response.ok) {
+                    showToast(result.message || 'Category deleted successfully');
+                    fetchCategories();
+                } else {
+                    showToast(result.error || 'Failed to delete category', 'danger');
+                }
+            } catch (error) {
+                console.error('Error deleting category:', error);
+                showToast('Failed to delete category', 'danger');
+            }
+        }
+    }
+
+    // Open update modal with category data
+    async function openUpdateModal(id) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/${id}`);
+            const category = await response.json();
+            if (response.ok) {
+                document.getElementById('updateId').value = category.id;
+                document.getElementById('updateName').value = category.name;
+                document.getElementById('updateDescription').value = category.description || '';
+                updateModal.show();
+            } else {
+                showToast(category.error || 'Failed to fetch category details', 'danger');
+            }
+        } catch (error) {
+            console.error('Error fetching category for update:', error);
+            showToast('Failed to fetch category details', 'danger');
+        }
+    }
+
+    // Handle update form submission
+    document.getElementById('updateForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('updateId').value;
+        const updatedCategory = {
+            id: parseInt(id),
+            name: document.getElementById('updateName').value,
+            description: document.getElementById('updateDescription').value || null
+        };
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedCategory)
+            });
+            const result = await response.json();
+            if (response.ok) {
+                showToast(result.message || 'Category updated successfully');
+                updateModal.hide();
+                fetchCategories();
+            } else {
+                showToast(result.error || 'Failed to update category', 'danger');
+            }
+        } catch (error) {
+            console.error('Error updating category:', error);
+            showToast('Failed to update category', 'danger');
+        }
+    });
+
+    // Open create modal
+    document.getElementById('createCategoryBtn').addEventListener('click', () => {
+        document.getElementById('createForm').reset();
+        createModal.show();
+    });
+
+    // Handle create form submission
+    document.getElementById('createForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newCategory = {
+            name: document.getElementById('createName').value,
+            description: document.getElementById('createDescription').value || null
+        };
+        
+        try {
+            const response = await fetch(API_BASE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newCategory)
+            });
+            const result = await response.json();
+            if (response.ok) {
+                showToast('Category created successfully');
+                createModal.hide();
+                fetchCategories();
+            } else {
+                showToast(result.error || 'Failed to create category', 'danger');
+            }
+        } catch (error) {
+            console.error('Error creating category:', error);
+            showToast('Failed to create category', 'danger');
+        }
+    });
+
+    // Handle search form submission
+    document.getElementById('searchForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const criteria = {
+            name: document.getElementById('searchName').value,
+            description: document.getElementById('searchDescription').value
+        };
+        await searchCategories(criteria);
+    });
+
+    // Clear search form
+    document.getElementById('clearSearchBtn').addEventListener('click', () => {
+        document.getElementById('searchForm').reset();
+        fetchCategories();
+    });
+
+    // Refresh button
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+        document.getElementById('searchForm').reset();
+        fetchCategories();
+    });
+
+    // Initial fetch
+    fetchCategories();
+    </script>
+</body>
+</html>

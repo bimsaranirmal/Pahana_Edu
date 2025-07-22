@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Billing Report - Pahana Edu Online Billing System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1F2A44;
+            --secondary-color: #F5E6CC;
+            --accent-color: #D4A373;
+            --text-color: #333333;
+            --background-color: #F8F9FA;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+        }
+
+        .navbar-brand, .nav-link {
+            color: var(--secondary-color) !important;
+        }
+
+        .navbar-brand:hover, .nav-link:hover {
+            color: var(--accent-color) !important;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border-radius: 10px 10px 0 0;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #b5895a;
+            border-color: #b5895a;
+        }
+
+        .spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .table th {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            min-width: 300px;
+        }
+
+        .bill-details-table {
+            margin-left: 20px;
+            font-size: 0.9em;
+        }
+
+        .bill-items-table {
+            margin-left: 40px;
+            font-size: 0.85em;
+            background-color: #f9f9f9;
+        }
+
+        .month-section {
+            margin-bottom: 20px;
+        }
+
+        @media print {
+            .navbar, .btn, .spinner, .toast, .no-print {
+                display: none !important;
+            }
+
+            .container {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+            }
+
+            .card {
+                box-shadow: none;
+                border: none;
+            }
+
+            .card-header {
+                display: none;
+            }
+
+            .card-body {
+                padding: 0;
+            }
+
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .table th, .table td {
+                border: 1px solid #000;
+                padding: 8px;
+            }
+
+            .bill-details-table, .bill-items-table {
+                margin-left: 0;
+            }
+
+            .print-header {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .print-footer {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                text-align: center;
+                font-size: 12px;
+                color: #666;
+            }
+
+            .month-section {
+                page-break-inside: avoid;
+            }
+
+            @page {
+                margin: 2cm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">Pahana Edu</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="dashboard.html">reports</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Monthly Billing Report</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3 no-print">
+                            <button class="btn btn-primary" onclick="printReport()">
+                                <i class="fas fa-print me-2"></i>Print Report
+                            </button>
+                        </div>
+                        <div class="print-header" style="display: none;">
+                            <h2>Pahana Edu Online Billing System</h2>
+                            <h4>Monthly Billing Report</h4>
+                            <p>Generated on: <span id="print-date"></span></p>
+                        </div>
+                        <div id="monthly-bills"></div>
+                        <div class="print-footer" style="display: none;">
+                            Page <span class="page-number"></span> | Pahana Edu Online Billing System
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="spinner" id="spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto" id="toast-title"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-message"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center py-3 mt-4 no-print">
+        <p class="mb-0">© 2025 Pahana Edu Online Billing System. All rights reserved.</p>
+    </footer>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/billingServices/resources';
+        const spinner = document.getElementById('spinner');
+        const toast = new bootstrap.Toast(document.getElementById('toast'));
+        const toastTitle = document.getElementById('toast-title');
+        const toastMessage = document.getElementById('toast-message');
+        const monthlyBillsContainer = document.getElementById('monthly-bills');
+        const printDate = document.getElementById('print-date');
+
+        // Show toast notification
+        function showToast(title, message, isError = false) {
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            toastTitle.classList.toggle('text-danger', isError);
+            toast.show();
+        }
+
+        // Show/hide spinner
+        function toggleSpinner(show) {
+            spinner.style.display = show ? 'block' : 'none';
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'LKR' }).format(amount);
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            return new Date(dateStr).toLocaleDateString('en-US', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+        }
+
+        // Fetch and display monthly bill details
+        async function fetchMonthlyBillDetails() {
+            toggleSpinner(true);
+            try {
+                const response = await fetch(`${API_BASE_URL}/bills/monthly-details`);
+                if (!response.ok) throw new Error('Failed to fetch monthly bill details');
+                const monthlyBills = await response.json();
+
+                // Sort months in descending order
+                const sortedMonths = Object.keys(monthlyBills).sort().reverse();
+                monthlyBillsContainer.innerHTML = '';
+
+                // Calculate total billing across all months
+                let totalBilling = 0;
+                for (const month of sortedMonths) {
+                    const bills = monthlyBills[month];
+                    const monthlyTotal = bills.reduce((sum, bill) => sum + bill.totalAmount, 0);
+                    totalBilling += monthlyTotal;
+
+                    // Create month section
+                    const monthSection = document.createElement('div');
+                    monthSection.className = 'month-section';
+                    monthSection.innerHTML = `
+                        <h5>${month}</h5>
+                        <table class="table table-bordered bill-details-table">
+                            <thead>
+                                <tr>
+                                    <th>Bill Number</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Total Amount</th>
+                                    <th class="no-print">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${bills.map(bill => `
+                                    <tr>
+                                        <td>${bill.billNo}</td>
+                                        <td>${bill.customerName} (ID: ${bill.customerId})</td>
+                                        <td>${formatDate(bill.createdAt)}</td>
+                                        <td>${formatCurrency(bill.totalAmount)}</td>
+                                        <td class="no-print">
+                                            <button class="btn btn-sm btn-primary" 
+                                                    onclick="toggleBillItems('bill-${bill.id}')" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#bill-items-${bill.id}">
+                                                <i class="fas fa-chevron-down"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="collapse no-print" id="bill-items-${bill.id}">
+                                        <td colspan="5">
+                                            <table class="table table-bordered bill-items-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Item Name</th>
+                                                        <th>Quantity</th>
+                                                        <th>Unit Price</th>
+                                                        <th>Subtotal</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    ${bill.billItems.map(item => `
+                                                        <tr>
+                                                            <td>${item.itemName}</td>
+                                                            <td>${item.quantity}</td>
+                                                            <td>${formatCurrency(item.unitPrice)}</td>
+                                                            <td>${formatCurrency(item.subtotal)}</td>
+                                                        </tr>
+                                                    `).join('')}
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3">Monthly Total</th>
+                                    <th>${formatCurrency(monthlyTotal)}</th>
+                                    <th class="no-print"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    `;
+                    monthlyBillsContainer.appendChild(monthSection);
+                }
+
+                // Add total billing footer
+                const totalSection = document.createElement('div');
+                totalSection.className = 'month-section';
+                totalSection.innerHTML = `
+                    <table class="table table-bordered">
+                        <tfoot>
+                            <tr>
+                                <th colspan="3">Total Billing (Last 12 Months)</th>
+                                <th>${formatCurrency(totalBilling)}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                `;
+                monthlyBillsContainer.appendChild(totalSection);
+
+                // Set print date
+                const today = new Date().toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                });
+                printDate.textContent = today;
+
+                showToast('Success', 'Monthly bill details loaded successfully');
+            } catch (error) {
+                showToast('Error', error.message, true);
+            } finally {
+                toggleSpinner(false);
+            }
+        }
+
+        // Toggle bill items visibility
+        function toggleBillItems(billId) {
+            const collapseElement = document.getElementById(`bill-items-${billId}`);
+            const button = document.querySelector(`[data-bs-target="#bill-items-${billId}"] i`);
+            if (collapseElement.classList.contains('show')) {
+                button.className = 'fas fa-chevron-down';
+            } else {
+                button.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Print report
+        function printReport() {
+            // Expand all bill items for printing
+            document.querySelectorAll('.collapse').forEach(collapse => {
+                collapse.classList.add('show');
+            });
+            window.print();
+            // Reset collapse state after printing
+            document.querySelectorAll('.collapse').forEach(collapse => {
+                collapse.classList.remove('show');
+            });
+            document.querySelectorAll('.btn[data-bs-toggle="collapse"] i').forEach(icon => {
+                icon.className = 'fas fa-chevron-down';
+            });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', fetchMonthlyBillDetails);
+    </script>
+</body>
+</html>
