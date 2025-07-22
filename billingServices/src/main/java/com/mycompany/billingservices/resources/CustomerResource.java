@@ -1,11 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.billingservices.resources;
 
-import Utils.Customer;
-import Utils.CustomerDAO;
+import Model.Customer;
+import DAO.CustomerDAO;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.ws.rs.Consumes;
@@ -29,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * RESTful resource for managing Customer entities in the Pahana Edu Online Billing System.
  *
  * @author BIMSARA
  */
@@ -49,7 +46,6 @@ public class CustomerResource {
             List<Customer> customers = customerDAO.getAllCustomers();
             return Response.ok(jsonb.toJson(customers)).build();
         } catch (SQLException e) {
-            // Log the exception for debugging purposes
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .entity(jsonb.toJson(new ErrorResponse("Database error: " + e.getMessage())))
@@ -77,7 +73,6 @@ public class CustomerResource {
                                .build();
             }
         } catch (SQLException e) {
-            // Log the exception for debugging purposes
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .entity(jsonb.toJson(new ErrorResponse("Database error: " + e.getMessage())))
@@ -86,7 +81,7 @@ public class CustomerResource {
     }
 
     /**
-     * Registers a new customer.
+     * Registers a new customer with an automatically generated account number.
      *
      * @param customer The Customer object to register.
      * @param uriInfo Context for building the created URI.
@@ -97,24 +92,21 @@ public class CustomerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerCustomer(Customer customer, @Context UriInfo uriInfo) {
         try {
-            // Validate required fields, now including accountNumber
+            // Validate required fields, excluding accountNumber (generated automatically)
             if (customer.getName() == null || customer.getGender() == null || customer.getDob() == null ||
-                customer.getAddress() == null || customer.getNic() == null || customer.getEmail() == null ||
-                customer.getAccountNumber() == null || customer.getAccountNumber().isEmpty()) { // accountNumber is now required
+                customer.getAddress() == null || customer.getNic() == null || customer.getEmail() == null) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                               .entity(jsonb.toJson(new ErrorResponse("Required fields (name, gender, dob, address, nic, email, accountNumber) cannot be null or empty")))
+                               .entity(jsonb.toJson(new ErrorResponse("Required fields (name, gender, dob, address, nic, email) cannot be null")))
                                .build();
             }
             int id = customerDAO.registerCustomer(customer);
             UriBuilder builder = uriInfo.getAbsolutePathBuilder().path(String.valueOf(id));
             return Response.created(builder.build()).entity(jsonb.toJson(id)).build();
         } catch (SQLException e) {
-            // Log the exception for debugging purposes
             e.printStackTrace();
-            // Handle specific SQL errors if needed, e.g., duplicate NIC/email/accountNumber
             if (e.getMessage() != null && e.getMessage().contains("Duplicate entry")) {
                 return Response.status(Response.Status.CONFLICT)
-                               .entity(jsonb.toJson(new ErrorResponse("Duplicate entry for NIC, email, or account number: " + e.getMessage())))
+                               .entity(jsonb.toJson(new ErrorResponse("Duplicate entry for NIC or email: " + e.getMessage())))
                                .build();
             }
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -142,7 +134,6 @@ public class CustomerResource {
                                .build();
             }
         } catch (SQLException e) {
-            // Log the exception for debugging purposes
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .entity(jsonb.toJson(new ErrorResponse("Database error: " + e.getMessage())))
@@ -169,7 +160,6 @@ public class CustomerResource {
                                .build();
             }
         } catch (SQLException e) {
-            // Log the exception for debugging purposes
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .entity(jsonb.toJson(new ErrorResponse("Database error: " + e.getMessage())))
@@ -178,7 +168,7 @@ public class CustomerResource {
     }
 
     /**
-     * Updates an existing customer's details.
+     * Updates an existing customer's details, excluding account number.
      *
      * @param id The ID of the customer to update.
      * @param updatedCustomer The Customer object with updated details.
@@ -190,17 +180,14 @@ public class CustomerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateCustomer(@PathParam("id") int id, Customer updatedCustomer) {
         try {
-            // Ensure the ID from the path matches the ID in the object for consistency
             updatedCustomer.setId(id);
-            // Basic validation for required fields on update, including accountNumber
+            // Validate required fields, excluding accountNumber
             if (updatedCustomer.getName() == null || updatedCustomer.getGender() == null || updatedCustomer.getDob() == null ||
-                updatedCustomer.getAddress() == null || updatedCustomer.getNic() == null || updatedCustomer.getEmail() == null ||
-                updatedCustomer.getAccountNumber() == null || updatedCustomer.getAccountNumber().isEmpty()) {
+                updatedCustomer.getAddress() == null || updatedCustomer.getNic() == null || updatedCustomer.getEmail() == null) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                               .entity(jsonb.toJson(new ErrorResponse("Required fields (name, gender, dob, address, nic, email, accountNumber) cannot be null or empty for update")))
+                               .entity(jsonb.toJson(new ErrorResponse("Required fields (name, gender, dob, address, nic, email) cannot be null")))
                                .build();
             }
-
             if (customerDAO.updateCustomer(updatedCustomer)) {
                 return Response.ok(jsonb.toJson(new SuccessResponse("Customer updated successfully"))).build();
             } else {
@@ -209,12 +196,10 @@ public class CustomerResource {
                                .build();
             }
         } catch (SQLException e) {
-            // Log the exception for debugging purposes
             e.printStackTrace();
-            // Handle specific SQL errors if needed, e.g., duplicate NIC/email/accountNumber
             if (e.getMessage() != null && e.getMessage().contains("Duplicate entry")) {
                 return Response.status(Response.Status.CONFLICT)
-                               .entity(jsonb.toJson(new ErrorResponse("Duplicate entry for NIC, email, or account number during update: " + e.getMessage())))
+                               .entity(jsonb.toJson(new ErrorResponse("Duplicate entry for NIC or email: " + e.getMessage())))
                                .build();
             }
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -242,7 +227,6 @@ public class CustomerResource {
                                .build();
             }
         } catch (SQLException e) {
-            // Log the exception for debugging purposes
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .entity(jsonb.toJson(new ErrorResponse("Database error: " + e.getMessage())))
@@ -271,25 +255,22 @@ public class CustomerResource {
                                     @QueryParam("nic") String nic,
                                     @QueryParam("email") String email,
                                     @QueryParam("phone") String phone,
-                                    @QueryParam("accountNumber") String accountNumber, // Added account number query param
+                                    @QueryParam("accountNumber") String accountNumber,
                                     @QueryParam("status") String status,
                                     @Context SecurityContext securityContext) {
         try {
-            // String userRole = securityContext.getUserPrincipal() != null ? securityContext.getUserPrincipal().getName() : "anonymous";
-            
             Map<String, String> criteria = new HashMap<>();
             if (name != null && !name.isEmpty()) criteria.put("name", name);
             if (gender != null && !gender.isEmpty()) criteria.put("gender", gender);
             if (nic != null && !nic.isEmpty()) criteria.put("nic", nic);
             if (email != null && !email.isEmpty()) criteria.put("email", email);
             if (phone != null && !phone.isEmpty()) criteria.put("phone", phone);
-            if (accountNumber != null && !accountNumber.isEmpty()) criteria.put("accountNumber", accountNumber); // Added to criteria
+            if (accountNumber != null && !accountNumber.isEmpty()) criteria.put("accountNumber", accountNumber);
             if (status != null && !status.isEmpty()) criteria.put("status", status);
 
             List<Customer> customers = customerDAO.searchCustomers(criteria);
             return Response.ok(jsonb.toJson(customers)).build();
         } catch (SQLException e) {
-            // Log the exception for debugging purposes
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .entity(jsonb.toJson(new ErrorResponse("Database error: " + e.getMessage())))
@@ -309,8 +290,6 @@ public class CustomerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response loginCustomer(LoginRequest loginRequest) {
         try {
-            // The authenticateCustomer method in CustomerDAO uses name and email.
-            // If account number is needed for login, the LoginRequest and authenticateCustomer method in DAO need to be updated.
             Customer customer = customerDAO.authenticateCustomer(loginRequest.getUsername(), loginRequest.getEmail());
             if (customer == null) {
                 return Response.status(Response.Status.UNAUTHORIZED)
@@ -324,7 +303,6 @@ public class CustomerResource {
             }
             return Response.ok(jsonb.toJson(customer)).build();
         } catch (SQLException e) {
-            // Log the exception for debugging purposes
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .entity(jsonb.toJson(new ErrorResponse("Database error: " + e.getMessage())))

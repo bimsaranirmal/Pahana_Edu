@@ -1,7 +1,7 @@
 package com.mycompany.billingservices.resources;
 
-import Utils.Billing;
-import Utils.BillingDAO;
+import Model.Billing;
+import DAO.BillingDAO;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.ws.rs.Consumes;

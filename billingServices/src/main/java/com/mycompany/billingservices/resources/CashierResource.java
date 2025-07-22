@@ -9,8 +9,8 @@ package com.mycompany.billingservices.resources;
  * @author BIMSARA
  */
 
-import Utils.Cashier;
-import Utils.CashierDAO;
+import Model.Cashier;
+import DAO.CashierDAO;
 import com.google.gson.Gson;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
