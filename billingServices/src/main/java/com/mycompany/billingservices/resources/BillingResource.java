@@ -35,8 +35,8 @@ public class BillingResource {
 
      private static final String SMTP_HOST = "smtp.gmail.com";
     private static final String SMTP_PORT = "587";
-    private static final String SMTP_USER = "bimsaranirmal123@gmail.com"; // Replace with your email
-    private static final String SMTP_PASSWORD = "sbocjncbzyujbkun"; // Replace with your app-specific password
+    private static final String SMTP_USER = ""; // Replace with your email
+    private static final String SMTP_PASSWORD = ""; // Replace with your app-specific password
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
