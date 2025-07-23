@@ -2,36 +2,29 @@ package DAO;
 
 import Model.Category;
 import Utils.DatabaseUtil;
+import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Data Access Object for managing Category entities in the Pahana Edu Online Billing System.
- * Provides methods for CRUD operations and searching categories in the database.
+ * Uses stored procedures for CRUD operations and searching categories in the database.
  *
  * @author BIMSARA
  */
 public class CategoryDAO {
 
-    /**
-     * Retrieves a list of all categories from the database.
-     *
-     * @return A list of Category objects.
-     * @throws SQLException If a database access error occurs.
-     */
     public List<Category> getAllCategories() throws SQLException {
         List<Category> categories = new ArrayList<>();
-        String sql = "SELECT id, name, description, created_at, updated_at FROM Category";
+        String sql = "{CALL sp_get_all_categories()}";
         try (Connection conn = DatabaseUtil.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             CallableStatement cstmt = conn.prepareCall(sql);
+             ResultSet rs = cstmt.executeQuery()) {
             while (rs.next()) {
                 categories.add(new Category(
                     rs.getInt("id"),
@@ -45,19 +38,12 @@ public class CategoryDAO {
         return categories;
     }
 
-    /**
-     * Retrieves a category by its ID.
-     *
-     * @param id The ID of the category to retrieve.
-     * @return The Category object if found, otherwise null.
-     * @throws SQLException If a database access error occurs.
-     */
     public Category getCategoryById(int id) throws SQLException {
-        String sql = "SELECT id, name, description, created_at, updated_at FROM Category WHERE id = ?";
+        String sql = "{CALL sp_get_category_by_id(?)}";
         try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
-            try (ResultSet rs = pstmt.executeQuery()) {
+             CallableStatement cstmt = conn.prepareCall(sql)) {
+            cstmt.setInt(1, id);
+            try (ResultSet rs = cstmt.executeQuery()) {
                 if (rs.next()) {
                     return new Category(
                         rs.getInt("id"),
@@ -72,92 +58,52 @@ public class CategoryDAO {
         return null;
     }
 
-    /**
-     * Adds a new category to the database.
-     *
-     * @param category The Category object containing the new category's details.
-     * @return The generated ID of the new category, or -1 if addition fails.
-     * @throws SQLException If a database access error occurs.
-     */
     public int addCategory(Category category) throws SQLException {
-        String sql = "INSERT INTO Category (name, description, created_at, updated_at) VALUES (?, ?, NOW(), NOW())";
+        String sql = "{CALL sp_add_category(?, ?, ?)}";
         try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            pstmt.setString(1, category.getName());
-            pstmt.setString(2, category.getDescription());
-            pstmt.executeUpdate();
-            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    return generatedKeys.getInt(1);
-                }
-            }
+             CallableStatement cstmt = conn.prepareCall(sql)) {
+            cstmt.setString(1, category.getName());
+            cstmt.setString(2, category.getDescription());
+            cstmt.registerOutParameter(3, Types.INTEGER);
+            cstmt.executeUpdate();
+            return cstmt.getInt(3);
         }
-        return -1;
     }
 
-    /**
-     * Updates an existing category's details in the database.
-     *
-     * @param category The Category object with updated details.
-     * @return True if the update was successful, false otherwise.
-     * @throws SQLException If a database access error occurs.
-     */
     public boolean updateCategory(Category category) throws SQLException {
-        String sql = "UPDATE Category SET name = ?, description = ?, updated_at = NOW() WHERE id = ?";
+        String sql = "{CALL sp_update_category(?, ?, ?, ?)}";
         try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, category.getName());
-            pstmt.setString(2, category.getDescription());
-            pstmt.setInt(3, category.getId());
-            return pstmt.executeUpdate() > 0;
+             CallableStatement cstmt = conn.prepareCall(sql)) {
+            cstmt.setInt(1, category.getId());
+            cstmt.setString(2, category.getName());
+            cstmt.setString(3, category.getDescription());
+            cstmt.registerOutParameter(4, Types.BOOLEAN);
+            cstmt.executeUpdate();
+            return cstmt.getBoolean(4);
         }
     }
 
-    /**
-     * Deletes a category from the database by its ID.
-     *
-     * @param id The ID of the category to delete.
-     * @return True if the deletion was successful, false otherwise.
-     * @throws SQLException If a database access error occurs.
-     */
     public boolean deleteCategory(int id) throws SQLException {
-        String sql = "DELETE FROM Category WHERE id = ?";
+        String sql = "{CALL sp_delete_category(?, ?)}";
         try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
-            return pstmt.executeUpdate() > 0;
+             CallableStatement cstmt = conn.prepareCall(sql)) {
+            cstmt.setInt(1, id);
+            cstmt.registerOutParameter(2, Types.BOOLEAN);
+            cstmt.executeUpdate();
+            return cstmt.getBoolean(2);
         }
     }
 
-    /**
-     * Searches for categories based on provided criteria.
-     *
-     * @param criteria A Map where keys are column names (e.g., "name", "description") and values are search terms.
-     * @return A list of Category objects matching the criteria.
-     * @throws SQLException If a database access error occurs.
-     */
     public List<Category> searchCategories(Map<String, String> criteria) throws SQLException {
         List<Category> categories = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT id, name, description, created_at, updated_at FROM Category WHERE 1=1");
-        List<String> params = new ArrayList<>();
-
-        if (criteria != null) {
-            if (criteria.containsKey("name")) {
-                sql.append(" AND name LIKE ?");
-                params.add("%" + criteria.get("name") + "%");
-            }
-            if (criteria.containsKey("description")) {
-                sql.append(" AND description LIKE ?");
-                params.add("%" + criteria.get("description") + "%");
-            }
-        }
-
+        String sql = "{CALL sp_search_categories(?, ?)}";
         try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                pstmt.setString(i + 1, params.get(i));
-            }
-            try (ResultSet rs = pstmt.executeQuery()) {
+             CallableStatement cstmt = conn.prepareCall(sql)) {
+            String name = criteria != null ? criteria.get("name") : null;
+            String description = criteria != null ? criteria.get("description") : null;
+            cstmt.setString(1, name);
+            cstmt.setString(2, description);
+            try (ResultSet rs = cstmt.executeQuery()) {
                 while (rs.next()) {
                     categories.add(new Category(
                         rs.getInt("id"),

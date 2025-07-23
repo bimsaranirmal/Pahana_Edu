@@ -19,6 +19,7 @@ com\mycompany\billingservices\resources\CustomerResource$LoginRequest.class
 com\mycompany\billingservices\resources\BillingResource$ErrorResponse.class
 com\mycompany\billingservices\resources\ItemResource$SuccessResponse.class
 com\mycompany\billingservices\resources\CashierResource$LoginRequest.class
+com\mycompany\billingservices\resources\BillingResource$1.class
 DAO\CashierDAO.class
 Model\Customer.class
 com\mycompany\billingservices\resources\CustomerResource$ErrorResponse.class

@@ -18,6 +18,9 @@ import jakarta.ws.rs.core.UriInfo;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import jakarta.mail.*;
+import jakarta.mail.internet.*;
+import java.util.Properties;
 
 /**
  * RESTful resource for managing Bill entities in the Pahana Edu Online Billing System.
@@ -30,13 +33,11 @@ public class BillingResource {
     private final BillingDAO billingDAO = new BillingDAO();
     private final Jsonb jsonb = JsonbBuilder.create();
 
-    /**
-     * Creates a new bill.
-     *
-     * @param bill The Billing object to create.
-     * @param uriInfo Context for building the created URI.
-     * @return A Response indicating success (201 Created) with the new bill's ID, or an error.
-     */
+     private static final String SMTP_HOST = "smtp.gmail.com";
+    private static final String SMTP_PORT = "587";
+    private static final String SMTP_USER = "bimsaranirmal123@gmail.com"; // Replace with your email
+    private static final String SMTP_PASSWORD = "sbocjncbzyujbkun"; // Replace with your app-specific password
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -77,12 +78,6 @@ public class BillingResource {
         }
     }
 
-    /**
-     * Retrieves a bill by its ID.
-     *
-     * @param id The ID of the bill.
-     * @return A Response containing the Billing object or a NOT_FOUND/error status.
-     */
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -104,12 +99,6 @@ public class BillingResource {
         }
     }
 
-    /**
-     * Retrieves all bills for a customer.
-     *
-     * @param customerId The ID of the customer.
-     * @return A Response containing a JSON array of Billing objects or an error.
-     */
     @GET
     @Path("customer/{customerId}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -125,11 +114,6 @@ public class BillingResource {
         }
     }
 
-    /**
-     * Retrieves monthly billing statistics and total billing amount.
-     *
-     * @return A Response containing a JSON object with monthly statistics and total billing amount.
-     */
     @GET
     @Path("statistics")
     @Produces(MediaType.APPLICATION_JSON)
@@ -160,9 +144,6 @@ public class BillingResource {
         }
     }
 
-    /**
-     * Inner class for structured error responses.
-     */
     public static class ErrorResponse {
         private String error;
 
@@ -174,9 +155,6 @@ public class BillingResource {
         public void setError(String error) { this.error = error; }
     }
 
-    /**
-     * Inner class for structured success responses.
-     */
     public static class SuccessResponse {
         private String message;
 
@@ -186,5 +164,87 @@ public class BillingResource {
 
         public String getMessage() { return message; }
         public void setMessage(String message) { this.message = message; }
+    }
+    
+    
+    @POST
+    @Path("{id}/send")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response sendBill(@PathParam("id") int billId, Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            if (email == null || email.trim().isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(jsonb.toJson(new ErrorResponse("Email address is required")))
+                        .build();
+            }
+
+            Map<String, Object> billContent = billingDAO.getBillContentForSending(billId);
+            sendEmail(email, billContent);
+
+            return Response.ok(jsonb.toJson(new SuccessResponse("Bill sent successfully"))).build();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(jsonb.toJson(new ErrorResponse("Database error: " + e.getMessage())))
+                    .build();
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(jsonb.toJson(new ErrorResponse("Failed to send email: " + e.getMessage())))
+                    .build();
+        }
+    }
+
+    private void sendEmail(String toEmail, Map<String, Object> billContent) throws MessagingException {
+        Properties props = new Properties();
+    props.put("mail.smtp.auth", "true");
+    props.put("mail.smtp.starttls.enable", "true");
+    props.put("mail.smtp.starttls.required", "true"); // Enforce TLS
+    props.put("mail.smtp.host", SMTP_HOST);
+    props.put("mail.smtp.port", SMTP_PORT);
+    props.put("mail.smtp.ssl.protocols", "TLSv1.2 TLSv1.3"); // Specify TLS versions
+    props.put("mail.smtp.ssl.trust", SMTP_HOST); // Trust Gmail's SMTP server
+    props.put("mail.debug", "true");
+        Session session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(SMTP_USER, SMTP_PASSWORD);
+            }
+        });
+
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(SMTP_USER));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+        message.setSubject("Your Bill from Pahana Edu - Bill No: " + billContent.get("billNo"));
+
+        StringBuilder emailContent = new StringBuilder();
+        emailContent.append("<h2>Pahana Edu - Bill</h2>")
+                .append("<p><strong>Bill No:</strong> ").append(billContent.get("billNo")).append("</p>")
+                .append("<p><strong>Bill ID:</strong> ").append(billContent.get("billId")).append("</p>")
+                .append("<p><strong>Customer:</strong> ").append(billContent.get("customerName")).append("</p>")
+                .append("<p><strong>Total Amount:</strong> LKR ").append(String.format("%.2f", billContent.get("totalAmount"))).append("</p>")
+                .append("<p><strong>Created At:</strong> ").append(billContent.get("createdAt")).append("</p>")
+                .append("<h4>Items</h4>")
+                .append("<table border='1' style='border-collapse: collapse; width: 100%;'>")
+                .append("<tr><th>Item</th><th>Unit Price</th><th>Quantity</th><th>Subtotal</th></tr>");
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> billItems = (List<Map<String, Object>>) billContent.get("billItems");
+        for (Map<String, Object> item : billItems) {
+            emailContent.append("<tr>")
+                    .append("<td>").append(item.get("itemName")).append("</td>")
+                    .append("<td>LKR ").append(String.format("%.2f", item.get("unitPrice"))).append("</td>")
+                    .append("<td>").append(item.get("quantity")).append("</td>")
+                    .append("<td>LKR ").append(String.format("%.2f", item.get("subtotal"))).append("</td>")
+                    .append("</tr>");
+        }
+        emailContent.append("</table>")
+                .append("<p style='text-align: right;'><strong>Total: LKR ").append(String.format("%.2f", billContent.get("totalAmount"))).append("</strong></p>")
+                .append("<p style='text-align: center;'>Thank you for your business!</p>");
+
+        message.setContent(emailContent.toString(), "text/html; charset=utf-8");
+        Transport.send(message);
     }
 }

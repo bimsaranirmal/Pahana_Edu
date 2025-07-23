@@ -34,11 +34,6 @@ public class CategoryResource {
     private final CategoryDAO categoryDAO = new CategoryDAO();
     private final Jsonb jsonb = JsonbBuilder.create();
 
-    /**
-     * Retrieves a list of all categories.
-     *
-     * @return A Response containing a JSON array of Category objects or an error.
-     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllCategories() {
@@ -54,12 +49,6 @@ public class CategoryResource {
         }
     }
 
-    /**
-     * Retrieves a category by its ID.
-     *
-     * @param id The ID of the category.
-     * @return A Response containing the Category object or a NOT_FOUND/error status.
-     */
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -82,13 +71,6 @@ public class CategoryResource {
         }
     }
 
-    /**
-     * Adds a new category.
-     *
-     * @param category The Category object to add.
-     * @param uriInfo Context for building the created URI.
-     * @return A Response indicating success (201 Created) with the new category's ID, or an error.
-     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -124,13 +106,6 @@ public class CategoryResource {
         }
     }
 
-    /**
-     * Updates an existing category's details.
-     *
-     * @param id The ID of the category to update.
-     * @param updatedCategory The Category object with updated details.
-     * @return A Response indicating success or a NOT_FOUND/error status.
-     */
     @PUT
     @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -167,12 +142,6 @@ public class CategoryResource {
         }
     }
 
-    /**
-     * Deletes a category by its ID.
-     *
-     * @param id The ID of the category to delete.
-     * @return A Response indicating success or a NOT_FOUND/error status.
-     */
     @DELETE
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -194,13 +163,6 @@ public class CategoryResource {
         }
     }
 
-    /**
-     * Searches for categories based on various criteria.
-     *
-     * @param name Optional query parameter for category name.
-     * @param description Optional query parameter for category description.
-     * @return A Response containing a JSON array of matching Category objects or an error.
-     */
     @GET
     @Path("search")
     @Produces(MediaType.APPLICATION_JSON)
@@ -222,9 +184,6 @@ public class CategoryResource {
         }
     }
 
-    /**
-     * Inner class for structured error responses.
-     */
     public static class ErrorResponse {
         private String error;
 
@@ -236,9 +195,6 @@ public class CategoryResource {
         public void setError(String error) { this.error = error; }
     }
 
-    /**
-     * Inner class for structured success responses.
-     */
     public static class SuccessResponse {
         private String message;
 

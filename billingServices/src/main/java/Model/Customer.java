@@ -48,28 +48,76 @@ public class Customer {
     }
 
     // Getters and Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getGender() { return gender; }
-    public void setGender(String gender) { this.gender = gender; }
-    public LocalDate getDob() { return dob; }
-    public void setDob(LocalDate dob) { this.dob = dob; }
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
-    public String getNic() { return nic; }
-    public void setNic(String nic) { this.nic = nic; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
-    public String getAccountNumber() { return accountNumber; } // Getter for account number
-    public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; } // Setter for account number
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    public LocalDate getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDate createdAt) { this.createdAt = createdAt; }
-    public LocalDate getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDate updatedAt) { this.updatedAt = updatedAt; }
+    public int getId() { 
+        return id; 
+    }
+    public void setId(int id) { 
+        this.id = id; 
+    }
+    public String getName() { 
+        return name; 
+    }
+    public void setName(String name) { 
+        this.name = name; 
+    }
+    public String getGender() { 
+        return gender; 
+    }
+    public void setGender(String gender) { 
+        this.gender = gender; 
+    }
+    public LocalDate getDob() { 
+        return dob; 
+    }
+    public void setDob(LocalDate dob) { 
+        this.dob = dob; 
+    }
+    public String getAddress() { 
+        return address; 
+    }
+    public void setAddress(String address) { 
+        this.address = address; 
+    }
+    public String getNic() { 
+        return nic; 
+    }
+    public void setNic(String nic) { 
+        this.nic = nic; 
+    }
+    public String getEmail() { 
+        return email; 
+    }
+    public void setEmail(String email) { 
+        this.email = email; 
+    }
+    public String getPhone() { 
+        return phone; 
+    }
+    public void setPhone(String phone) { 
+        this.phone = phone; 
+    }
+    public String getAccountNumber() { 
+        return accountNumber; 
+    } 
+    public void setAccountNumber(String accountNumber) { 
+        this.accountNumber = accountNumber; 
+    } 
+    public String getStatus() { 
+        return status; 
+    }
+    public void setStatus(String status) { 
+        this.status = status; 
+    }
+    public LocalDate getCreatedAt() { 
+        return createdAt; 
+    }
+    public void setCreatedAt(LocalDate createdAt) { 
+        this.createdAt = createdAt; 
+    }
+    public LocalDate getUpdatedAt() { 
+        return updatedAt; 
+    }
+    public void setUpdatedAt(LocalDate updatedAt) { 
+        this.updatedAt = updatedAt; 
+    }
 }

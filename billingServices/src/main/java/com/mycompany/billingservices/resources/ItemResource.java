@@ -34,11 +34,6 @@ public class ItemResource {
     private final ItemDAO itemDAO = new ItemDAO();
     private final Jsonb jsonb = JsonbBuilder.create();
 
-    /**
-     * Retrieves a list of all items.
-     *
-     * @return A Response containing a JSON array of Item objects or an error.
-     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllItems() {
@@ -53,12 +48,6 @@ public class ItemResource {
         }
     }
 
-    /**
-     * Retrieves an item by its ID.
-     *
-     * @param id The ID of the item.
-     * @return A Response containing the Item object or a NOT_FOUND/error status.
-     */
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -80,13 +69,6 @@ public class ItemResource {
         }
     }
 
-    /**
-     * Adds a new item.
-     *
-     * @param item The Item object to add.
-     * @param uriInfo Context for building the created URI.
-     * @return A Response indicating success (201 Created) with the new item's ID, or an error.
-     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -125,13 +107,6 @@ public class ItemResource {
         }
     }
 
-    /**
-     * Updates an existing item's details.
-     *
-     * @param id The ID of the item to update.
-     * @param updatedItem The Item object with updated details.
-     * @return A Response indicating success or a NOT_FOUND/error status.
-     */
     @PUT
     @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -169,12 +144,6 @@ public class ItemResource {
         }
     }
 
-    /**
-     * Deletes an item by its ID.
-     *
-     * @param id The ID of the item to delete.
-     * @return A Response indicating success or a NOT_FOUND/error status.
-     */
     @DELETE
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -195,16 +164,6 @@ public class ItemResource {
         }
     }
 
-    /**
-     * Searches for items based on various criteria.
-     *
-     * @param name Optional query parameter for item name.
-     * @param description Optional query parameter for item description.
-     * @param categoryId Optional query parameter for item category ID.
-     * @param stockMin Optional query parameter for minimum stock quantity.
-     * @param stockMax Optional query parameter for maximum stock quantity.
-     * @return A Response containing a JSON array of matching Item objects or an error.
-     */
     @GET
     @Path("search")
     @Produces(MediaType.APPLICATION_JSON)
@@ -231,11 +190,6 @@ public class ItemResource {
         }
     }
 
-    /**
-     * Retrieves counts of items in specified stock ranges.
-     *
-     * @return A Response containing a JSON object with counts for stock ranges (0-50, 50-100, 100+).
-     */
     @GET
     @Path("stock-counts")
     @Produces(MediaType.APPLICATION_JSON)
@@ -251,9 +205,6 @@ public class ItemResource {
         }
     }
 
-    /**
-     * Inner class for structured error responses.
-     */
     public static class ErrorResponse {
         private String error;
 
@@ -265,9 +216,6 @@ public class ItemResource {
         public void setError(String error) { this.error = error; }
     }
 
-    /**
-     * Inner class for structured success responses.
-     */
     public static class SuccessResponse {
         private String message;
 

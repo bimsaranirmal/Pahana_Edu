@@ -34,11 +34,6 @@ public class CustomerResource {
     private final CustomerDAO customerDAO = new CustomerDAO();
     private final Jsonb jsonb = JsonbBuilder.create();
 
-    /**
-     * Retrieves a list of all customers.
-     *
-     * @return A Response containing a JSON array of Customer objects or an error.
-     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllCustomers() {
@@ -53,12 +48,6 @@ public class CustomerResource {
         }
     }
 
-    /**
-     * Retrieves a customer by their ID.
-     *
-     * @param id The ID of the customer.
-     * @return A Response containing the Customer object or a NOT_FOUND/error status.
-     */
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -80,13 +69,6 @@ public class CustomerResource {
         }
     }
 
-    /**
-     * Registers a new customer with an automatically generated account number.
-     *
-     * @param customer The Customer object to register.
-     * @param uriInfo Context for building the created URI.
-     * @return A Response indicating success (201 Created) with the new customer's ID, or an error.
-     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -115,12 +97,6 @@ public class CustomerResource {
         }
     }
 
-    /**
-     * Approves a customer by their ID.
-     *
-     * @param id The ID of the customer to approve.
-     * @return A Response indicating success or a NOT_FOUND/error status.
-     */
     @PUT
     @Path("{id}/approve")
     @Produces(MediaType.APPLICATION_JSON)
@@ -141,12 +117,6 @@ public class CustomerResource {
         }
     }
 
-    /**
-     * Rejects a customer by their ID.
-     *
-     * @param id The ID of the customer to reject.
-     * @return A Response indicating success or a NOT_FOUND/error status.
-     */
     @PUT
     @Path("{id}/reject")
     @Produces(MediaType.APPLICATION_JSON)
@@ -167,13 +137,6 @@ public class CustomerResource {
         }
     }
 
-    /**
-     * Updates an existing customer's details, excluding account number.
-     *
-     * @param id The ID of the customer to update.
-     * @param updatedCustomer The Customer object with updated details.
-     * @return A Response indicating success or a NOT_FOUND/error status.
-     */
     @PUT
     @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -208,12 +171,6 @@ public class CustomerResource {
         }
     }
 
-    /**
-     * Deletes a customer by their ID.
-     *
-     * @param id The ID of the customer to delete.
-     * @return A Response indicating success or a NOT_FOUND/error status.
-     */
     @DELETE
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -234,19 +191,6 @@ public class CustomerResource {
         }
     }
 
-    /**
-     * Searches for customers based on various criteria.
-     *
-     * @param name Optional query parameter for customer name.
-     * @param gender Optional query parameter for customer gender.
-     * @param nic Optional query parameter for customer NIC.
-     * @param email Optional query parameter for customer email.
-     * @param phone Optional query parameter for customer phone.
-     * @param accountNumber Optional query parameter for customer account number.
-     * @param status Optional query parameter for customer status.
-     * @param securityContext Security context for user role (currently not used for filtering).
-     * @return A Response containing a JSON array of matching Customer objects or an error.
-     */
     @GET
     @Path("search")
     @Produces(MediaType.APPLICATION_JSON)
@@ -277,13 +221,7 @@ public class CustomerResource {
                            .build();
         }
     }
-
-    /**
-     * Handles customer login.
-     *
-     * @param loginRequest Contains username and email for authentication.
-     * @return A Response containing the authenticated Customer object or an unauthorized/forbidden/error status.
-     */
+    
     @POST
     @Path("login")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -310,9 +248,6 @@ public class CustomerResource {
         }
     }
 
-    /**
-     * Inner class for handling login requests.
-     */
     public static class LoginRequest {
         private String username;
         private String email;
@@ -323,9 +258,6 @@ public class CustomerResource {
         public void setEmail(String email) { this.email = email; }
     }
 
-    /**
-     * Inner class for structured error responses.
-     */
     public static class ErrorResponse {
         private String error;
 
@@ -337,9 +269,6 @@ public class CustomerResource {
         public void setError(String error) { this.error = error; }
     }
 
-    /**
-     * Inner class for structured success responses.
-     */
     public static class SuccessResponse {
         private String message;
 

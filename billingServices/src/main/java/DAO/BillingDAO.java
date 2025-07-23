@@ -2,128 +2,71 @@ package DAO;
 
 import Model.Billing;
 import Utils.DatabaseUtil;
+import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.Types;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import java.sql.PreparedStatement;
 
+/**
+ * Data Access Object for managing Billing entities in the Pahana Edu Online Billing System.
+ * Uses stored procedures for all database operations.
+ *
+ * @author BIMSARA
+ */
 public class BillingDAO {
 
-    private String generateBillNo(Connection conn) throws SQLException {
-        String datePart = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String sql = "SELECT COUNT(*) FROM Bill WHERE bill_no LIKE ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, "BILL-" + datePart + "%");
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    int count = rs.getInt(1) + 1;
-                    return String.format("BILL-%s-%04d", datePart, count);
-                }
-            }
-        }
-        return "BILL-" + datePart + "-0001";
-    }
-
     public int createBill(Billing bill) throws SQLException {
-        Connection conn = null;
-        try {
-            conn = DatabaseUtil.getConnection();
-            conn.setAutoCommit(false);
-
-            String billNo = generateBillNo(conn);
-
-            String billSql = "INSERT INTO Bill (bill_no, customer_id, total_amount, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())";
-            int billId = -1;
-            try (PreparedStatement billStmt = conn.prepareStatement(billSql, Statement.RETURN_GENERATED_KEYS)) {
-                billStmt.setString(1, billNo);
-                billStmt.setInt(2, bill.getCustomerId());
-                billStmt.setDouble(3, bill.getTotalAmount());
-                billStmt.executeUpdate();
-                try (ResultSet generatedKeys = billStmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        billId = generatedKeys.getInt(1);
-                    }
+        String sql = "{CALL sp_create_bill(?, ?, ?, ?)}";
+        try (Connection conn = DatabaseUtil.getConnection()) {
+            // Validate inputs
+            if (bill.getBillItems() == null || bill.getBillItems().isEmpty()) {
+                throw new IllegalArgumentException("Bill items cannot be empty");
+            }
+            for (Billing.BillItem item : bill.getBillItems()) {
+                if (item.getSubtotal() != item.getQuantity() * item.getUnitPrice()) {
+                    throw new IllegalArgumentException("Subtotal mismatch for item ID " + item.getItemId());
                 }
             }
-
-            if (billId == -1) {
-                conn.rollback();
-                return -1;
-            }
-
-            String checkStockSql = "SELECT stock_quantity FROM Item WHERE id = ? FOR UPDATE";
-            String updateStockSql = "UPDATE Item SET stock_quantity = ?, updated_at = NOW() WHERE id = ?";
-            String billItemSql = "INSERT INTO BillItem (bill_id, item_id, quantity, unit_price, subtotal) VALUES (?, ?, ?, ?, ?)";
-
+            
+            // Convert bill items to JSON
+            JsonArray billItemsJson = new JsonArray();
             for (Billing.BillItem billItem : bill.getBillItems()) {
-                try (PreparedStatement checkStmt = conn.prepareStatement(checkStockSql)) {
-                    checkStmt.setInt(1, billItem.getItemId());
-                    try (ResultSet rs = checkStmt.executeQuery()) {
-                        if (rs.next()) {
-                            int currentStock = rs.getInt("stock_quantity");
-                            if (currentStock < billItem.getQuantity()) {
-                                conn.rollback();
-                                throw new SQLException("Insufficient stock for item ID " + billItem.getItemId());
-                            }
-                            try (PreparedStatement updateStmt = conn.prepareStatement(updateStockSql)) {
-                                updateStmt.setInt(1, currentStock - billItem.getQuantity());
-                                updateStmt.setInt(2, billItem.getItemId());
-                                updateStmt.executeUpdate();
-                            }
-                        } else {
-                            conn.rollback();
-                            throw new SQLException("Item ID " + billItem.getItemId() + " not found");
-                        }
-                    }
-                }
-
-                try (PreparedStatement billItemStmt = conn.prepareStatement(billItemSql)) {
-                    billItemStmt.setInt(1, billId);
-                    billItemStmt.setInt(2, billItem.getItemId());
-                    billItemStmt.setInt(3, billItem.getQuantity());
-                    billItemStmt.setDouble(4, billItem.getUnitPrice());
-                    billItemStmt.setDouble(5, billItem.getSubtotal());
-                    billItemStmt.executeUpdate();
-                }
+                JsonObject itemJson = new JsonObject();
+                itemJson.addProperty("item_id", billItem.getItemId());
+                itemJson.addProperty("quantity", billItem.getQuantity());
+                itemJson.addProperty("unit_price", billItem.getUnitPrice());
+                itemJson.addProperty("subtotal", billItem.getSubtotal());
+                billItemsJson.add(itemJson);
             }
+            String jsonString = new Gson().toJson(billItemsJson);
 
-            conn.commit();
-            return billId;
-        } catch (SQLException e) {
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            throw e;
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
+            try (CallableStatement cstmt = conn.prepareCall(sql)) {
+                cstmt.setInt(1, bill.getCustomerId());
+                cstmt.setDouble(2, bill.getTotalAmount());
+                cstmt.setString(3, jsonString);
+                cstmt.registerOutParameter(4, Types.INTEGER);
+                cstmt.executeUpdate();
+                return cstmt.getInt(4);
             }
         }
     }
 
     public Billing getBillById(int id) throws SQLException {
-        String billSql = "SELECT id, bill_no, customer_id, total_amount, created_at, updated_at FROM Bill WHERE id = ?";
-        String billItemSql = "SELECT id, bill_id, item_id, quantity, unit_price, subtotal FROM BillItem WHERE bill_id = ?";
+        String billSql = "{CALL sp_get_bill_by_id(?)}";
+        String billItemSql = "{CALL sp_get_bill_items_by_bill_id(?)}";
 
         try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement billStmt = conn.prepareStatement(billSql)) {
+             CallableStatement billStmt = conn.prepareCall(billSql)) {
             billStmt.setInt(1, id);
             Billing bill = null;
             try (ResultSet billRs = billStmt.executeQuery()) {
@@ -142,7 +85,7 @@ public class BillingDAO {
 
             if (bill != null) {
                 List<Billing.BillItem> billItems = new ArrayList<>();
-                try (PreparedStatement billItemStmt = conn.prepareStatement(billItemSql)) {
+                try (CallableStatement billItemStmt = conn.prepareCall(billItemSql)) {
                     billItemStmt.setInt(1, id);
                     try (ResultSet billItemRs = billItemStmt.executeQuery()) {
                         while (billItemRs.next()) {
@@ -165,16 +108,12 @@ public class BillingDAO {
 
     public List<Billing> getBillsByCustomerId(int customerId) throws SQLException {
         List<Billing> bills = new ArrayList<>();
-        String billSql = customerId == 0 
-            ? "SELECT id, bill_no, customer_id, total_amount, created_at, updated_at FROM Bill"
-            : "SELECT id, bill_no, customer_id, total_amount, created_at, updated_at FROM Bill WHERE customer_id = ?";
-        String billItemSql = "SELECT id, bill_id, item_id, quantity, unit_price, subtotal FROM BillItem WHERE bill_id = ?";
+        String billSql = "{CALL sp_get_bills_by_customer_id(?)}";
+        String billItemSql = "{CALL sp_get_bill_items_by_bill_id(?)}";
 
         try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement billStmt = conn.prepareStatement(billSql)) {
-            if (customerId != 0) {
-                billStmt.setInt(1, customerId);
-            }
+             CallableStatement billStmt = conn.prepareCall(billSql)) {
+            billStmt.setInt(1, customerId);
             try (ResultSet billRs = billStmt.executeQuery()) {
                 while (billRs.next()) {
                     Billing bill = new Billing(
@@ -188,7 +127,7 @@ public class BillingDAO {
                     );
 
                     List<Billing.BillItem> billItems = new ArrayList<>();
-                    try (PreparedStatement billItemStmt = conn.prepareStatement(billItemSql)) {
+                    try (CallableStatement billItemStmt = conn.prepareCall(billItemSql)) {
                         billItemStmt.setInt(1, bill.getId());
                         try (ResultSet billItemRs = billItemStmt.executeQuery()) {
                             while (billItemRs.next()) {
@@ -209,7 +148,7 @@ public class BillingDAO {
         }
         return bills;
     }
-    
+
     public Map<String, Object> getBillingStatistics() throws SQLException {
         Map<String, Object> result = new HashMap<>();
         List<Map<String, Object>> monthlyStats = new ArrayList<>();
@@ -252,19 +191,14 @@ public class BillingDAO {
 
         return result;
     }
-    
+
     public Map<String, List<Map<String, Object>>> getMonthlyBillDetails() throws SQLException {
         Map<String, List<Map<String, Object>>> monthlyBills = new HashMap<>();
-        String billSql = "SELECT b.id, b.bill_no, b.customer_id, c.name AS customer_name, b.total_amount, " +
-                        "b.created_at, b.updated_at, DATE_FORMAT(b.created_at, '%Y-%m') AS month " +
-                        "FROM Bill b JOIN Customer c ON b.customer_id = c.id " +
-                        "WHERE b.created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) " +
-                        "ORDER BY b.created_at DESC";
-        String billItemSql = "SELECT bi.id, bi.bill_id, bi.item_id, bi.quantity, bi.unit_price, bi.subtotal, i.name AS item_name " +
-                            "FROM BillItem bi JOIN Item i ON bi.item_id = i.id WHERE bi.bill_id = ?";
+        String billSql = "{CALL sp_get_monthly_bill_details()}";
+        String billItemSql = "{CALL sp_get_bill_items_with_names(?)}";
 
         try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement billStmt = conn.prepareStatement(billSql)) {
+             CallableStatement billStmt = conn.prepareCall(billSql)) {
             try (ResultSet billRs = billStmt.executeQuery()) {
                 while (billRs.next()) {
                     String month = billRs.getString("month");
@@ -278,7 +212,7 @@ public class BillingDAO {
                     billDetails.put("updatedAt", billRs.getDate("updated_at").toLocalDate().toString());
 
                     List<Map<String, Object>> billItems = new ArrayList<>();
-                    try (PreparedStatement billItemStmt = conn.prepareStatement(billItemSql)) {
+                    try (CallableStatement billItemStmt = conn.prepareCall(billItemSql)) {
                         billItemStmt.setInt(1, billRs.getInt("id"));
                         try (ResultSet billItemRs = billItemStmt.executeQuery()) {
                             while (billItemRs.next()) {
@@ -300,4 +234,55 @@ public class BillingDAO {
         }
         return monthlyBills;
     }
+
+    public String getCustomerEmail(int customerId) throws SQLException {
+        String sql = "{CALL sp_get_customer_email(?, ?)}";
+        try (Connection conn = DatabaseUtil.getConnection();
+             CallableStatement cstmt = conn.prepareCall(sql)) {
+            cstmt.setInt(1, customerId);
+            cstmt.registerOutParameter(2, Types.VARCHAR);
+            cstmt.execute();
+            return cstmt.getString(2);
+        }
+    }
+
+    public Map<String, Object> getBillContentForSending(int billId) throws SQLException {
+        String sql = "{CALL sp_get_bill_content_for_sending(?)}";
+        try (Connection conn = DatabaseUtil.getConnection();
+             CallableStatement cstmt = conn.prepareCall(sql)) {
+            cstmt.setInt(1, billId);
+            try (ResultSet rs = cstmt.executeQuery()) {
+                if (rs.next()) {
+                    Map<String, Object> billContent = new HashMap<>();
+                    billContent.put("billId", rs.getInt("bill_id"));
+                    billContent.put("billNo", rs.getString("bill_no"));
+                    billContent.put("customerId", rs.getInt("customer_id"));
+                    billContent.put("customerName", rs.getString("customer_name"));
+                    billContent.put("customerEmail", rs.getString("customer_email"));
+                    billContent.put("totalAmount", rs.getDouble("total_amount"));
+                    billContent.put("createdAt", rs.getDate("created_at").toLocalDate().toString());
+
+                    String billItemsJson = rs.getString("bill_items");
+                    List<Map<String, Object>> billItems = new ArrayList<>();
+                    JsonArray jsonArray = new Gson().fromJson(billItemsJson, JsonArray.class);
+                    for (int i = 0; i < jsonArray.size(); i++) {
+                        JsonObject jsonObj = jsonArray.get(i).getAsJsonObject();
+                        Map<String, Object> item = new HashMap<>();
+                        item.put("itemId", jsonObj.get("itemId").getAsInt());
+                        item.put("quantity", jsonObj.get("quantity").getAsInt());
+                        item.put("unitPrice", jsonObj.get("unitPrice").getAsDouble());
+                        item.put("subtotal", jsonObj.get("subtotal").getAsDouble());
+                        item.put("itemName", jsonObj.get("itemName").getAsString());
+                        billItems.add(item);
+                    }
+                    billContent.put("billItems", billItems);
+                    return billContent;
+                }
+            }
+        }
+        throw new SQLException("Bill with ID " + billId + " not found");
+    }
 }
+    
+    
+      
