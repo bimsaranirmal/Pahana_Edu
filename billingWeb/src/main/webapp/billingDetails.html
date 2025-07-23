@@ -315,7 +315,7 @@
                             <label class="form-label">Bill ID</label>
                             <input type="text" id="detailBillId" class="form-control" readonly>
                         </div>
-                        <div class="col-md-06">
+                        <div class="col-md-6">
                             <label class="form-label">Customer</label>
                             <input type="text" id="detailCustomer" class="form-control" readonly>
                         </div>
@@ -350,8 +350,43 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-info" onclick="openSendBillModal(document.getElementById('detailBillId').value, document.getElementById('detailBillNo').value, null, document.getElementById('detailCustomer').value)">
+                        <i class="fas fa-paper-plane me-1"></i>Send Bill
+                    </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i class="fas fa-times me-1"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Send Bill Modal -->
+    <div class="modal fade no-print" id="sendBillModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Send Bill via Email</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Bill No: <span id="sendBillNo"></span></label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Customer: <span id="sendCustomerName"></span></label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerEmail" class="form-label">Customer Email</label>
+                        <input type="email" id="customerEmail" class="form-control" placeholder="Enter customer email" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                    <button type="button" id="sendBillBtn" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i>Send Bill
                     </button>
                 </div>
             </div>
@@ -412,14 +447,18 @@
         let allBills = [];
         let allCustomers = [];
         let billDetailsModal;
+        let sendBillModal;
 
         document.addEventListener('DOMContentLoaded', function() {
             billDetailsModal = new bootstrap.Modal(document.getElementById('billDetailsModal'));
+            sendBillModal = new bootstrap.Modal(document.getElementById('sendBillModal'));
             loadCustomers();
             loadBills();
             // Add event listeners for filters
             document.getElementById('applyFiltersBtn').addEventListener('click', filterBills);
             document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+            // Add event listener for send bill button
+            document.getElementById('sendBillBtn').addEventListener('click', sendBill);
         });
 
         // Load customers for filter dropdown
@@ -509,8 +548,11 @@
                         <button class="btn btn-primary btn-sm me-1" onclick="viewBillDetails(${bill.id})">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button class="btn btn-success btn-sm" onclick="printBillFromTable(${bill.id}, '${bill.billNo}', ${bill.customerId}, '${customerMap[bill.customerId]?.name || 'Unknown'}', '${customerMap[bill.customerId]?.accountNo || '-'}', ${bill.totalAmount}, '${bill.createdAt}')">
+                        <button class="btn btn-success btn-sm me-1" onclick="printBillFromTable(${bill.id}, '${bill.billNo}', ${bill.customerId}, '${customerMap[bill.customerId]?.name || 'Unknown'}', '${customerMap[bill.customerId]?.accountNo || '-'}', ${bill.totalAmount}, '${bill.createdAt}')">
                             <i class="fas fa-print"></i>
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="openSendBillModal(${bill.id}, '${bill.billNo}', ${bill.customerId}, '${customerMap[bill.customerId]?.name || 'Unknown'}')">
+                            <i class="fas fa-paper-plane"></i>
                         </button>
                     </td>
                 `;
@@ -531,7 +573,7 @@
                 const matchesCustomer = customerId ? bill.customerId.toString() === customerId : true;
                 const matchesBillNo = billNo ? bill.billNo.toLowerCase().includes(billNo) : true;
                 const matchesAccountNo = accountNo ? customer.accountNumber.toLowerCase().includes(accountNo) : true;
-                const matchesDate = dateStart && dateEnd ? isDateInRange(bill.createdAt, dateStart, dateEnd) : true;
+                const matchesDate = dateStart && dateEnd ? isDateInRange(bill.createdAt, dateStart, endDate) : true;
                 return matchesCustomer && matchesBillNo && matchesAccountNo && matchesDate;
             });
 
@@ -561,7 +603,6 @@
         async function viewBillDetails(billId) {
             console.log('Fetching bill details for billId:', billId);
             try {
-                // Check DOM elements
                 const elements = {
                     detailBillNo: document.getElementById('detailBillNo'),
                     detailBillId: document.getElementById('detailBillId'),
@@ -643,6 +684,67 @@
             } catch (error) {
                 console.error('Error fetching bill details:', error);
                 showToast('Failed to fetch bill details', 'danger');
+            }
+        }
+
+        // Open send bill modal
+        async function openSendBillModal(billId, billNo, customerId, customerName) {
+            document.getElementById('sendBillNo').textContent = billNo;
+            document.getElementById('sendCustomerName').textContent = customerName;
+            document.getElementById('customerEmail').value = '';
+
+            // Fetch customer email if customerId is provided
+            if (customerId) {
+                try {
+                    showLoading();
+                    const response = await fetch(`${API_BASE_URL}/customers/${customerId}`);
+                    const customer = await response.json();
+                    if (response.ok) {
+                        document.getElementById('customerEmail').value = customer.email || '';
+                    } else {
+                        showToast('Failed to load customer email', 'danger');
+                    }
+                } catch (error) {
+                    console.error('Error fetching customer details:', error);
+                    showToast('Failed to load customer email', 'danger');
+                } finally {
+                    hideLoading();
+                }
+            }
+
+            sendBillModal.show();
+            window.currentBillId = billId; // Store billId for sending
+        }
+
+        // Send bill via email
+        async function sendBill() {
+            const billId = window.currentBillId;
+            const email = document.getElementById('customerEmail').value;
+
+            if (!email) {
+                showToast('Please enter a valid email address', 'danger');
+                return;
+            }
+
+            try {
+                showLoading();
+                const response = await fetch(`${API_BASE_URL}/bills/${billId}/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    showToast(result.message || 'Bill sent successfully');
+                    sendBillModal.hide();
+                } else {
+                    showToast(result.error || 'Failed to send bill', 'danger');
+                }
+            } catch (error) {
+                console.error('Error sending bill:', error);
+                showToast('Failed to send bill', 'danger');
+            } finally {
+                hideLoading();
             }
         }
 
