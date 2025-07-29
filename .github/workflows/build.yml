@@ -60,7 +60,8 @@ jobs:
       - name: Build with Maven (billingServices)
         working-directory: billingServices
         env:
-          DB_URL: jdbc:mysql://127.0.0.1:3306/billingdb
-          DB_USER: billinguser
-          DB_PASSWORD: billingpass
+         DB_URL: jdbc:mysql://127.0.0.1:3306/billingdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+         DB_USER: billinguser
+         DB_PASSWORD: billingpass
+
         run: mvn clean install
