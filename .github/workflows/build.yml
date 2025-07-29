@@ -16,14 +16,14 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: rootpassword
-          MYSQL_DATABASE: billingdb
+          MYSQL_ROOT_PASSWORD: bimsara123
+          MYSQL_DATABASE: billingsys  # ✅ this must match your DB
           MYSQL_USER: billinguser
-          MYSQL_PASSWORD: billingpass
+          MYSQL_PASSWORD: bimsara123
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping --silent"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -pbimsara123 --silent"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
@@ -49,7 +49,7 @@ jobs:
       - name: Wait for MySQL to be ready
         run: |
           for i in {30..0}; do
-            if mysqladmin ping -h 127.0.0.1 -u billinguser -pbillingpass --silent; then
+            if mysqladmin ping -h 127.0.0.1 -pbimsara123 --silent; then
               echo "MySQL is up"
               break
             fi
@@ -57,11 +57,15 @@ jobs:
             sleep 2
           done
 
+      - name: Initialize schema and stored procedures
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -ubillinguser -pbimsara123 billingsys < billingServices/sql/schema.sql
+        # Make sure the file billingServices/sql/schema.sql exists in your repo
+
       - name: Build with Maven (billingServices)
         working-directory: billingServices
         env:
-         DB_URL: jdbc:mysql://127.0.0.1:3306/billingdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-         DB_USER: billinguser
-         DB_PASSWORD: billingpass
-
+          DB_URL: jdbc:mysql://127.0.0.1:3306/billingsys?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+          DB_USER: billinguser
+          DB_PASSWORD: bimsara123
         run: mvn clean install
