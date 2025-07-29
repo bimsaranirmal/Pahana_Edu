@@ -12,6 +12,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: billingdb
+          MYSQL_USER: billinguser
+          MYSQL_PASSWORD: billingpass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -22,6 +38,29 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build with Maven (billingServices )
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('billingServices/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Wait for MySQL to be ready
+        run: |
+          for i in {30..0}; do
+            if mysqladmin ping -h 127.0.0.1 -u billinguser -pbillingpass --silent; then
+              echo "MySQL is up"
+              break
+            fi
+            echo 'Waiting for MySQL...'
+            sleep 2
+          done
+
+      - name: Build with Maven (billingServices)
         working-directory: billingServices
+        env:
+          DB_URL: jdbc:mysql://127.0.0.1:3306/billingdb
+          DB_USER: billinguser
+          DB_PASSWORD: billingpass
         run: mvn clean install
