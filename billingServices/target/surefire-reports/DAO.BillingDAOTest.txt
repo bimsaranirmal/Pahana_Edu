@@ -1,0 +1,52 @@
+-------------------------------------------------------------------------------
+Test set: DAO.BillingDAOTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 0.405 s <<< FAILURE! - in DAO.BillingDAOTest
+DAO.BillingDAOTest.testGetBillById  Time elapsed: 0.337 s  <<< ERROR!
+java.sql.SQLException: Invalid or unapproved customer ID
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:130)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:122)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:912)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1054)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1003)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1312)
+	at com.mysql.cj.jdbc.CallableStatement.executeLargeUpdate(CallableStatement.java:2491)
+	at com.mysql.cj.jdbc.CallableStatement.executeUpdate(CallableStatement.java:902)
+	at DAO.BillingDAO.createBill(BillingDAO.java:58)
+	at DAO.BillingDAOTest.testGetBillById(BillingDAOTest.java:73)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+DAO.BillingDAOTest.testCreateBill  Time elapsed: 0.016 s  <<< ERROR!
+java.sql.SQLException: Invalid or unapproved customer ID
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:130)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:122)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:912)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1054)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1003)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1312)
+	at com.mysql.cj.jdbc.CallableStatement.executeLargeUpdate(CallableStatement.java:2491)
+	at com.mysql.cj.jdbc.CallableStatement.executeUpdate(CallableStatement.java:902)
+	at DAO.BillingDAO.createBill(BillingDAO.java:58)
+	at DAO.BillingDAOTest.testCreateBill(BillingDAOTest.java:49)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+DAO.BillingDAOTest.testGetBillsByCustomerId  Time elapsed: 0.013 s  <<< ERROR!
+java.sql.SQLException: Invalid or unapproved customer ID
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:130)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:122)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:912)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1054)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1003)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1312)
+	at com.mysql.cj.jdbc.CallableStatement.executeLargeUpdate(CallableStatement.java:2491)
+	at com.mysql.cj.jdbc.CallableStatement.executeUpdate(CallableStatement.java:902)
+	at DAO.BillingDAO.createBill(BillingDAO.java:58)
+	at DAO.BillingDAOTest.testGetBillsByCustomerId(BillingDAOTest.java:96)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
