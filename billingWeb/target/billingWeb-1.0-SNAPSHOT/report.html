@@ -66,6 +66,9 @@
             transform: translate(-50%, -50%);
             display: none;
         }
+        .table{
+            width: 90%;
+        }
 
         .table th, .table td {
             vertical-align: middle;
@@ -94,12 +97,16 @@
             background-color: #f9f9f9;
         }
 
-        .month-section {
+        .month-section, .customer-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-section {
             margin-bottom: 20px;
         }
 
         @media print {
-            .navbar, .btn, .spinner, .toast, .no-print {
+            .navbar, .btn, .spinner, .toast, .no-print, .filter-section {
                 display: none !important;
             }
 
@@ -150,7 +157,7 @@
                 color: #666;
             }
 
-            .month-section {
+            .month-section, .customer-section {
                 page-break-inside: avoid;
             }
 
@@ -170,8 +177,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="dashboard.html">reports</a></li>
-                    
+                    <li class="nav-item"><a class="nav-link" href="dashboard.html">Reports</a></li>
                 </ul>
             </div>
         </div>
@@ -186,6 +192,40 @@
                         <h5 class="mb-0">Monthly Billing Report</h5>
                     </div>
                     <div class="card-body">
+                        <!-- Filter Section -->
+                        <div class="filter-section no-print">
+                            <form id="filterForm" class="row g-3 align-items-end">
+                                <div class="col-md-3">
+                                    <label for="monthSelect" class="form-label">Month</label>
+                                    <select id="monthSelect" class="form-select">
+                                        <option value="">Select Month</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="yearSelect" class="form-label">Year</label>
+                                    <select id="yearSelect" class="form-select">
+                                        <option value="">Select Year</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- Customer Filter Section -->
+                        <div class="filter-section no-print" style="display:none;">
+                            <form id="customerForm" class="row g-3 align-items-end">
+                                <div class="col-md-6">
+                                    <label for="customerSelect" class="form-label">Select Customer</label>
+                                    <select id="customerSelect" class="form-select">
+                                        <option value="">Select Customer</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="submit" class="btn btn-primary">Generate Customer Report</button>
+                                </div>
+                            </form>
+                        </div>
                         <div class="mb-3 no-print">
                             <button class="btn btn-primary" onclick="printReport()">
                                 <i class="fas fa-print me-2"></i>Print Report
@@ -238,6 +278,9 @@
         const toastMessage = document.getElementById('toast-message');
         const monthlyBillsContainer = document.getElementById('monthly-bills');
         const printDate = document.getElementById('print-date');
+        const monthSelect = document.getElementById('monthSelect');
+        const yearSelect = document.getElementById('yearSelect');
+        const customerSelect = document.getElementById('customerSelect');
 
         // Show toast notification
         function showToast(title, message, isError = false) {
@@ -264,31 +307,96 @@
             });
         }
 
-        // Fetch and display monthly bill details
-        async function fetchMonthlyBillDetails() {
+        // Populate month dropdown
+        function populateMonths() {
+            const months = [
+                { value: '01', name: 'January' },
+                { value: '02', name: 'February' },
+                { value: '03', name: 'March' },
+                { value: '04', name: 'April' },
+                { value: '05', name: 'May' },
+                { value: '06', name: 'June' },
+                { value: '07', name: 'July' },
+                { value: '08', name: 'August' },
+                { value: '09', name: 'September' },
+                { value: '10', name: 'October' },
+                { value: '11', name: 'November' },
+                { value: '12', name: 'December' }
+            ];
+            months.forEach(month => {
+                const option = document.createElement('option');
+                option.value = month.value;
+                option.textContent = month.name;
+                monthSelect.appendChild(option);
+            });
+        }
+
+        // Populate year dropdown
+        function populateYears() {
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear; year >= currentYear - 11; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            }
+        }
+
+        // Fetch customers
+        async function fetchCustomers() {
             toggleSpinner(true);
             try {
-                const response = await fetch(`${API_BASE_URL}/bills/monthly-details`);
+                const response = await fetch(`${API_BASE_URL}/customers`); // Assume this endpoint exists
+                if (!response.ok) throw new Error('Failed to fetch customers');
+                const customers = await response.json();
+                customerSelect.innerHTML = '<option value="">Select Customer</option>';
+                customers.forEach(customer => {
+                    const option = document.createElement('option');
+                    option.value = customer.id;
+                    option.textContent = `${customer.name} (ID: ${customer.id})`;
+                    customerSelect.appendChild(option);
+                });
+                showToast('Success', 'Customers loaded successfully');
+            } catch (error) {
+                showToast('Error', error.message, true);
+            } finally {
+                toggleSpinner(false);
+            }
+        }
+
+        // Fetch and display monthly bill details for selected month and year
+        async function fetchMonthlyBillDetails(year = '', month = '') {
+            toggleSpinner(true);
+            try {
+                let url = `${API_BASE_URL}/bills/monthly-details`;
+                const params = new URLSearchParams();
+                if (year) params.append('year', year);
+                if (month) params.append('month', month);
+                if (params.toString()) url += `?${params.toString()}`;
+
+                const response = await fetch(url);
                 if (!response.ok) throw new Error('Failed to fetch monthly bill details');
                 const monthlyBills = await response.json();
 
-                // Sort months in descending order
-                const sortedMonths = Object.keys(monthlyBills).sort().reverse();
                 monthlyBillsContainer.innerHTML = '';
 
-                // Calculate total billing across all months
+                if (Object.keys(monthlyBills).length === 0) {
+                    monthlyBillsContainer.innerHTML = '<p>No bills found for the selected month and year.</p>';
+                    showToast('Info', 'No bills found for the selected month and year.');
+                    return;
+                }
+
                 let totalBilling = 0;
-                for (const month of sortedMonths) {
-                    const bills = monthlyBills[month];
+                for (const monthKey in monthlyBills) {
+                    const bills = monthlyBills[monthKey];
                     const monthlyTotal = bills.reduce((sum, bill) => sum + bill.totalAmount, 0);
                     totalBilling += monthlyTotal;
 
-                    // Create month section
                     const monthSection = document.createElement('div');
                     monthSection.className = 'month-section';
                     monthSection.innerHTML = `
-                        <h5>${month}</h5>
-                        <table class="table table-bordered bill-details-table">
+                        <h5>${monthKey}</h5>
+                        <table class="table table-bordered bill-details-table" style="margin-right:20px;">
                             <thead>
                                 <tr>
                                     <th>Bill Number</th>
@@ -352,14 +460,13 @@
                     monthlyBillsContainer.appendChild(monthSection);
                 }
 
-                // Add total billing footer
                 const totalSection = document.createElement('div');
                 totalSection.className = 'month-section';
                 totalSection.innerHTML = `
                     <table class="table table-bordered">
                         <tfoot>
                             <tr>
-                                <th colspan="3">Total Billing (Last 12 Months)</th>
+                                <th colspan="3">Total Billing (Selected Month)</th>
                                 <th>${formatCurrency(totalBilling)}</th>
                             </tr>
                         </tfoot>
@@ -367,13 +474,110 @@
                 `;
                 monthlyBillsContainer.appendChild(totalSection);
 
-                // Set print date
                 const today = new Date().toLocaleDateString('en-US', {
                     year: 'numeric', month: 'long', day: 'numeric'
                 });
                 printDate.textContent = today;
 
                 showToast('Success', 'Monthly bill details loaded successfully');
+            } catch (error) {
+                showToast('Error', error.message, true);
+            } finally {
+                toggleSpinner(false);
+            }
+        }
+
+        // Fetch and display bills for selected customer
+        async function fetchCustomerBills(customerId) {
+            toggleSpinner(true);
+            try {
+                const response = await fetch(`${API_BASE_URL}/bills/customer/${customerId}`);
+                if (!response.ok) throw new Error('Failed to fetch customer bills');
+                const bills = await response.json();
+
+                monthlyBillsContainer.innerHTML = '';
+
+                if (bills.length === 0) {
+                    monthlyBillsContainer.innerHTML = '<p>No bills found for the selected customer.</p>';
+                    showToast('Info', 'No bills found for the selected customer.');
+                    return;
+                }
+
+                let totalBilling = 0;
+                const customerSection = document.createElement('div');
+                customerSection.className = 'customer-section';
+                customerSection.innerHTML = `
+                    <h5>Bills for ${bills[0].customerName} (ID: ${bills[0].customerId})</h5>
+                    <table class="table table-bordered bill-details-table">
+                        <thead>
+                            <tr>
+                                <th>Bill Number</th>
+                                <th>Date</th>
+                                <th>Total Amount</th>
+                                <th class="no-print">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${bills.map(bill => {
+                                totalBilling += bill.totalAmount;
+                                return `
+                                    <tr>
+                                        <td>${bill.billNo}</td>
+                                        <td>${formatDate(bill.createdAt)}</td>
+                                        <td>${formatCurrency(bill.totalAmount)}</td>
+                                        <td class="no-print">
+                                            <button class="btn btn-sm btn-primary" 
+                                                    onclick="toggleBillItems('bill-${bill.id}')" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#bill-items-${bill.id}">
+                                                <i class="fas fa-chevron-down"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="collapse no-print" id="bill-items-${bill.id}" style="display:none;">
+                                        <td colspan="4">
+                                            <table class="table table-bordered bill-items-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Item Name</th>
+                                                        <th>Quantity</th>
+                                                        <th>Unit Price</th>
+                                                        <th>Subtotal</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    ${bill.billItems.map(item => `
+                                                        <tr>
+                                                            <td>${item.itemName}</td>
+                                                            <td>${item.quantity}</td>
+                                                            <td>${formatCurrency(item.unitPrice)}</td>
+                                                            <td>${formatCurrency(item.subtotal)}</td>
+                                                        </tr>
+                                                    `).join('')}
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="2">Total Billing</th>
+                                <th>${formatCurrency(totalBilling)}</th>
+                                <th class="no-print"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                `;
+                monthlyBillsContainer.appendChild(customerSection);
+
+                const today = new Date().toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                });
+                printDate.textContent = today;
+
+                showToast('Success', 'Customer bill details loaded successfully');
             } catch (error) {
                 showToast('Error', error.message, true);
             } finally {
@@ -394,12 +598,10 @@
 
         // Print report
         function printReport() {
-            // Expand all bill items for printing
             document.querySelectorAll('.collapse').forEach(collapse => {
                 collapse.classList.add('show');
             });
             window.print();
-            // Reset collapse state after printing
             document.querySelectorAll('.collapse').forEach(collapse => {
                 collapse.classList.remove('show');
             });
@@ -409,7 +611,43 @@
         }
 
         // Initialize page
-        document.addEventListener('DOMContentLoaded', fetchMonthlyBillDetails);
+        document.addEventListener('DOMContentLoaded', () => {
+            populateMonths();
+            populateYears();
+
+            // Set default values to current month and year
+            const now = new Date();
+            const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+            const currentYear = now.getFullYear();
+            monthSelect.value = currentMonth;
+            yearSelect.value = currentYear;
+
+            // Fetch initial report
+            fetchMonthlyBillDetails(currentYear, currentMonth);
+            fetchCustomers();
+
+            // Handle form submissions
+            document.getElementById('filterForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const year = yearSelect.value;
+                const month = monthSelect.value;
+                if (!year || !month) {
+                    showToast('Error', 'Please select both month and year', true);
+                    return;
+                }
+                fetchMonthlyBillDetails(year, month);
+            });
+
+            document.getElementById('customerForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const customerId = customerSelect.value;
+                if (!customerId) {
+                    showToast('Error', 'Please select a customer', true);
+                    return;
+                }
+                fetchCustomerBills(customerId);
+            });
+        });
     </script>
 </body>
 </html>

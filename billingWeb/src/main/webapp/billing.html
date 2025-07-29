@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -226,6 +227,23 @@
             .table-responsive {
                 font-size: 0.85rem;
             }
+        }
+
+        /* Quantity input styles */
+        .quantity-control {
+            display: flex;
+            align-items: center;
+        }
+        .quantity-control input {
+            width: 60px;
+            text-align: center;
+            margin: 0 5px;
+            height: 32px;
+            font-size: 0.875rem;
+        }
+        .quantity-control button {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
         }
     </style>
 </head>
@@ -856,7 +874,8 @@
                 name: currentItemToAdd.name,
                 quantity: quantity,
                 unitPrice: currentItemToAdd.price,
-                subtotal: quantity * currentItemToAdd.price
+                subtotal: quantity * currentItemToAdd.price,
+                stock: currentItemToAdd.stock // Store stock for validation
             };
             billItems.push(billItem);
             updateBillItemsTable();
@@ -873,7 +892,17 @@
                 row.innerHTML = `
                     <td>${item.name}</td>
                     <td>LKR ${item.unitPrice.toFixed(2)}</td>
-                    <td>${item.quantity}</td>
+                    <td>
+                        <div class="quantity-control">
+                            <button class="btn btn-outline-primary btn-sm" onclick="changeQuantity(${index}, -1)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" value="${item.quantity}" min="1" max="${item.stock}" onchange="updateQuantity(${index}, this.value)">
+                            <button class="btn btn-outline-primary btn-sm" onclick="changeQuantity(${index}, 1)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </td>
                     <td>LKR ${item.subtotal.toFixed(2)}</td>
                     <td>
                         <button class="btn btn-danger btn-sm" onclick="removeBillItem(${index})">
@@ -883,6 +912,42 @@
                 `;
                 tableBody.appendChild(row);
             });
+        }
+
+        // Change quantity using buttons
+        function changeQuantity(index, delta) {
+            const item = billItems[index];
+            const newQuantity = item.quantity + delta;
+            if (newQuantity < 1) {
+                showToast('Quantity cannot be less than 1', 'danger');
+                return;
+            }
+            if (newQuantity > item.stock) {
+                showToast(`Quantity exceeds available stock (${item.stock}) for ${item.name}`, 'danger');
+                return;
+            }
+            item.quantity = newQuantity;
+            item.subtotal = item.quantity * item.unitPrice;
+            updateBillItemsTable();
+            updateTotalAmount();
+        }
+
+        // Update quantity from input
+        function updateQuantity(index, value) {
+            const newQuantity = parseInt(value);
+            const item = billItems[index];
+            if (!newQuantity || newQuantity < 1) {
+                showToast('Please enter a valid quantity', 'danger');
+                item.quantity = 1; // Reset to 1 if invalid
+            } else if (newQuantity > item.stock) {
+                showToast(`Quantity exceeds available stock (${item.stock}) for ${item.name}`, 'danger');
+                item.quantity = item.stock; // Set to max stock
+            } else {
+                item.quantity = newQuantity;
+            }
+            item.subtotal = item.quantity * item.unitPrice;
+            updateBillItemsTable();
+            updateTotalAmount();
         }
 
         // Remove item from bill
@@ -932,6 +997,7 @@
                     showToast('Bill created successfully');
                     const billId = result;
                     const billNo = `BILL-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-000${billId}`;
+                    // Create billData with item names from billItems
                     const billData = {
                         id: billId,
                         billNo: billNo,
@@ -939,10 +1005,16 @@
                         customerName: customerName,
                         totalAmount: bill.totalAmount,
                         createdAt: new Date().toISOString().slice(0,10),
-                        billItems: bill.billItems
+                        billItems: billItems.map(item => ({
+                            itemId: item.itemId,
+                            name: item.name, // Use name from local billItems
+                            quantity: item.quantity,
+                            unitPrice: item.unitPrice,
+                            subtotal: item.subtotal
+                        }))
                     };
                     printBill(billData);
-                    
+
                     // Fetch customer email and send bill
                     try {
                         const customerResponse = await fetch(`${API_BASE_URL}/customers/${customerId}`);
@@ -984,14 +1056,17 @@
             updateTotalAmount();
         }
 
-        // Load recent bills
+        // Load recent bills (filtered by current date)
         async function loadRecentBills() {
             showLoading();
             try {
                 const response = await fetch(`${API_BASE_URL}/bills/customer/0`);
                 const bills = await response.json();
                 console.log('Fetched bills:', bills);
-                displayBills(bills);
+                // Filter bills by current date
+                const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+                const filteredBills = bills.filter(bill => bill.createdAt.slice(0, 10) === today);
+                displayBills(filteredBills);
             } catch (error) {
                 console.error('Error loading bills:', error);
                 showToast('Failed to load bills', 'danger');
@@ -1011,7 +1086,7 @@
                         <td colspan="6" class="text-center py-5">
                             <div class="text-muted">
                                 <i class="fas fa-receipt fa-2x mb-3"></i>
-                                <h5>No bills found</h5>
+                                <h5>No bills found for today</h5>
                             </div>
                         </td>
                     </tr>

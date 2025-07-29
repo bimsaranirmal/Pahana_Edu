@@ -211,6 +211,15 @@
             align-items: center;
             justify-content: center;
         }
+
+        /* Add custom validation styles */
+        .phone-error {
+            border-color: #dc3545 !important;
+        }
+
+        .phone-error:focus {
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2) !important;
+        }
     </style>
 </head>
 <body>
@@ -266,13 +275,13 @@
                         </div>
                         <div class="flex-fill">
                             <label class="form-label">Phone</label>
-                            <input type="tel" id="searchPhone" class="form-control" placeholder="Search by phone...">
+                            <input type="tel" id="searchPhone" class="form-control" placeholder="Search by phone..." maxlength="10" pattern="[0-9]{10}" oninput="validatePhone(this)">
                         </div>
                         <div class="flex-fill">
                             <label class="form-label">Account Number</label>
                             <input type="text" id="searchAccountNumber" class="form-control" placeholder="Search by account number...">
                         </div>
-                        <div class="flex-fill" style="display: none;">
+                        <div class="flex-fill" style="display:none;">
                             <label class="form-label">Status</label>
                             <select id="searchStatus" class="form-select">
                                 <option value="">All Statuses</option>
@@ -323,6 +332,7 @@
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Account Number</th>
+                                
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -374,7 +384,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Phone Number</label>
-                                <input type="tel" id="updatePhone" class="form-control">
+                                <input type="tel" id="updatePhone" class="form-control" maxlength="10" pattern="[0-9]{10}" oninput="validatePhone(this)" required>
                             </div>
                         </div>
                     </form>
@@ -432,7 +442,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Phone Number</label>
-                                <input type="tel" id="createPhone" class="form-control">
+                                <input type="tel" id="createPhone" class="form-control" maxlength="10" pattern="[0-9]{10}" oninput="validatePhone(this)" required>
                             </div>
                         </div>
                     </form>
@@ -521,6 +531,20 @@
             return container;
         }
 
+        // Validate phone number input
+        function validatePhone(input) {
+            let value = input.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+            if (value.length > 10) value = value.slice(0, 10); // Limit to 10 digits
+            input.value = value;
+
+            if (input.value.length < 10 && input.value.length > 0) {
+                input.classList.add('phone-error');
+                showToast('Phone number must be exactly 10 digits', 'warning');
+            } else {
+                input.classList.remove('phone-error');
+            }
+        }
+
         // Fetch and display all customers
         async function fetchCustomers() {
             showLoading();
@@ -607,6 +631,7 @@
                     <td>${customer.email}</td>
                     <td>${customer.phone || '-'}</td>
                     <td>${customer.accountNumber || '-'}</td>
+                    
                     <td>
                         <div class="action-buttons d-flex gap-1">
                             
