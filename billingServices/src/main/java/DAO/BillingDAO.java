@@ -137,7 +137,8 @@ public class BillingDAO {
                                     billItemRs.getInt("quantity"),
                                     billItemRs.getDouble("unit_price"),
                                     billItemRs.getDouble("subtotal")
-                                ));
+                                )
+                                );
                             }
                         }
                     }

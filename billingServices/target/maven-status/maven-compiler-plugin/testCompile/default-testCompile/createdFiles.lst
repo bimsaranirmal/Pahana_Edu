@@ -1,0 +1,5 @@
+DAO\ItemDAOTests.class
+DAO\BillingDAOTests.class
+DAO\CashierDAOTests.class
+DAO\CategoryDAOTests.class
+DAO\CustomerDAOTests.class

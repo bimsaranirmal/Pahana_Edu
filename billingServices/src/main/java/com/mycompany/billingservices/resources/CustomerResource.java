@@ -98,46 +98,6 @@ public class CustomerResource {
     }
 
     @PUT
-    @Path("{id}/approve")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response approveCustomer(@PathParam("id") int id) {
-        try {
-            if (customerDAO.approveCustomer(id)) {
-                return Response.ok(jsonb.toJson(new SuccessResponse("Customer approved successfully"))).build();
-            } else {
-                return Response.status(Response.Status.NOT_FOUND)
-                               .entity(jsonb.toJson(new ErrorResponse("Customer with ID " + id + " not found")))
-                               .build();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                           .entity(jsonb.toJson(new ErrorResponse("Database error: " + e.getMessage())))
-                           .build();
-        }
-    }
-
-    @PUT
-    @Path("{id}/reject")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response rejectCustomer(@PathParam("id") int id) {
-        try {
-            if (customerDAO.rejectCustomer(id)) {
-                return Response.ok(jsonb.toJson(new SuccessResponse("Customer rejected successfully"))).build();
-            } else {
-                return Response.status(Response.Status.NOT_FOUND)
-                               .entity(jsonb.toJson(new ErrorResponse("Customer with ID " + id + " not found")))
-                               .build();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                           .entity(jsonb.toJson(new ErrorResponse("Database error: " + e.getMessage())))
-                           .build();
-        }
-    }
-
-    @PUT
     @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -214,32 +174,6 @@ public class CustomerResource {
 
             List<Customer> customers = customerDAO.searchCustomers(criteria);
             return Response.ok(jsonb.toJson(customers)).build();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                           .entity(jsonb.toJson(new ErrorResponse("Database error: " + e.getMessage())))
-                           .build();
-        }
-    }
-    
-    @POST
-    @Path("login")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response loginCustomer(LoginRequest loginRequest) {
-        try {
-            Customer customer = customerDAO.authenticateCustomer(loginRequest.getUsername(), loginRequest.getEmail());
-            if (customer == null) {
-                return Response.status(Response.Status.UNAUTHORIZED)
-                               .entity(jsonb.toJson(new ErrorResponse("Invalid username or email")))
-                               .build();
-            }
-            if (!"approved".equals(customer.getStatus())) {
-                return Response.status(Response.Status.FORBIDDEN)
-                               .entity(jsonb.toJson(new ErrorResponse("Only approved customers can log in")))
-                               .build();
-            }
-            return Response.ok(jsonb.toJson(customer)).build();
         } catch (SQLException e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

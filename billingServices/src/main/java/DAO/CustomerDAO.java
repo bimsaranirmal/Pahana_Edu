@@ -119,28 +119,6 @@ public class CustomerDAO {
         }
     }
 
-    public boolean approveCustomer(int id) throws SQLException {
-        String sql = "{CALL sp_approve_customer(?, ?)}";
-        try (Connection conn = DatabaseUtil.getConnection();
-             CallableStatement cstmt = conn.prepareCall(sql)) {
-            cstmt.setInt(1, id);
-            cstmt.registerOutParameter(2, Types.BOOLEAN);
-            cstmt.executeUpdate();
-            return cstmt.getBoolean(2);
-        }
-    }
-
-    public boolean rejectCustomer(int id) throws SQLException {
-        String sql = "{CALL sp_reject_customer(?, ?)}";
-        try (Connection conn = DatabaseUtil.getConnection();
-             CallableStatement cstmt = conn.prepareCall(sql)) {
-            cstmt.setInt(1, id);
-            cstmt.registerOutParameter(2, Types.BOOLEAN);
-            cstmt.executeUpdate();
-            return cstmt.getBoolean(2);
-        }
-    }
-
     public List<Customer> searchCustomers(Map<String, String> criteria) throws SQLException {
         List<Customer> customers = new ArrayList<>();
         String sql = "{CALL sp_search_customers(?, ?, ?, ?, ?, ?, ?)}";
@@ -173,33 +151,5 @@ public class CustomerDAO {
             }
         }
         return customers;
-    }
-
-    public Customer authenticateCustomer(String username, String email) throws SQLException {
-        String sql = "{CALL sp_authenticate_customer(?, ?)}";
-        try (Connection conn = DatabaseUtil.getConnection();
-             CallableStatement cstmt = conn.prepareCall(sql)) {
-            cstmt.setString(1, username);
-            cstmt.setString(2, email);
-            try (ResultSet rs = cstmt.executeQuery()) {
-                if (rs.next()) {
-                    return new Customer(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("gender"),
-                        rs.getDate("dob").toLocalDate(),
-                        rs.getString("address"),
-                        rs.getString("nic"),
-                        rs.getString("email"),
-                        rs.getString("phone"),
-                        rs.getString("account_number"),
-                        rs.getString("status"),
-                        rs.getDate("created_at").toLocalDate(),
-                        rs.getDate("updated_at").toLocalDate()
-                    );
-                }
-            }
-        }
-        return null;
     }
 }

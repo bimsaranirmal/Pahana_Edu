@@ -116,6 +116,10 @@ public class Billing {
             this.subtotal = subtotal;
         }
 
+        public BillItem(int aInt, int aInt0, int aInt1, double aDouble, double aDouble0, String string) {
+            throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        }
+
         public int getId() {
             return id;
         }

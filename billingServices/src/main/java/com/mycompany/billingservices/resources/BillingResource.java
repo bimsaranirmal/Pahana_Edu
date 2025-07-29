@@ -33,10 +33,10 @@ public class BillingResource {
     private final BillingDAO billingDAO = new BillingDAO();
     private final Jsonb jsonb = JsonbBuilder.create();
 
-     private static final String SMTP_HOST = "smtp.gmail.com";
+    private static final String SMTP_HOST = "smtp.gmail.com";
     private static final String SMTP_PORT = "587";
-    private static final String SMTP_USER = ""; // Replace with your email
-    private static final String SMTP_PASSWORD = ""; // Replace with your app-specific password
+    private static final String SMTP_USER = "bimsaranirmal123@gmail.com"; 
+    private static final String SMTP_PASSWORD = "sbocjncbzyujbkun"; 
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -199,14 +199,14 @@ public class BillingResource {
 
     private void sendEmail(String toEmail, Map<String, Object> billContent) throws MessagingException {
         Properties props = new Properties();
-    props.put("mail.smtp.auth", "true");
-    props.put("mail.smtp.starttls.enable", "true");
-    props.put("mail.smtp.starttls.required", "true"); // Enforce TLS
-    props.put("mail.smtp.host", SMTP_HOST);
-    props.put("mail.smtp.port", SMTP_PORT);
-    props.put("mail.smtp.ssl.protocols", "TLSv1.2 TLSv1.3"); // Specify TLS versions
-    props.put("mail.smtp.ssl.trust", SMTP_HOST); // Trust Gmail's SMTP server
-    props.put("mail.debug", "true");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.starttls.required", "true"); // Enforce TLS
+        props.put("mail.smtp.host", SMTP_HOST);
+        props.put("mail.smtp.port", SMTP_PORT);
+        props.put("mail.smtp.ssl.protocols", "TLSv1.2 TLSv1.3"); // Specify TLS versions
+        props.put("mail.smtp.ssl.trust", SMTP_HOST); // Trust Gmail's SMTP server
+        props.put("mail.debug", "true");
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
