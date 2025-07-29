@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: DAO.CategoryDAOTests
 -------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.2 s - in DAO.CategoryDAOTests
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.621 s - in DAO.CategoryDAOTests

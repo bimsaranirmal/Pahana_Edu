@@ -38,7 +38,9 @@ public class CategoryDAOTests {
 
     @Test
     public void testAddAndGetCategory() throws SQLException {
-        Category testCategory = new Category(0, "Test Category", "Test Description", LocalDate.now(), LocalDate.now());
+        System.out.println("addCategories");
+        Category testCategory = new Category(0, "Test Category", "Test Description", LocalDate.now(),
+                LocalDate.now());
         
         int categoryId = categoryDAO.addCategory(testCategory);
         assertTrue(categoryId > 0, "Failed to add test category");
@@ -67,7 +69,8 @@ public class CategoryDAOTests {
     @Test
     public void testUpdateCategory() throws SQLException {
         System.out.println("updateCategory");
-        Category testCategory = new Category(0, "Test Category Update", "Original Description", LocalDate.now(), LocalDate.now());
+        Category testCategory = new Category(0, "Test Category Update", "Original Description",
+                LocalDate.now(), LocalDate.now());
         
         int categoryId = categoryDAO.addCategory(testCategory);
         assertTrue(categoryId > 0, "Failed to add test category");
@@ -89,7 +92,8 @@ public class CategoryDAOTests {
     @Test
     public void testDeleteCategory() throws SQLException {
         System.out.println("deleteCategory");
-        Category testCategory = new Category(0, "Test Category Delete", "Delete Description", LocalDate.now(), LocalDate.now());
+        Category testCategory = new Category(0, "Test Category Delete", "Delete Description",
+                LocalDate.now(), LocalDate.now());
         
         int categoryId = categoryDAO.addCategory(testCategory);
         assertTrue(categoryId > 0, "Failed to add test category");
@@ -104,7 +108,8 @@ public class CategoryDAOTests {
     @Test
     public void testSearchCategories() throws SQLException {
         System.out.println("searchCategories");
-        Category testCategory = new Category(0, "Test Category Search", "Search Description", LocalDate.now(), LocalDate.now());
+        Category testCategory = new Category(0, "Test Category Search", "Search Description", 
+                LocalDate.now(), LocalDate.now());
         
         int categoryId = categoryDAO.addCategory(testCategory);
         assertTrue(categoryId > 0, "Failed to add test category");

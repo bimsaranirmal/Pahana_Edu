@@ -37,7 +37,10 @@ public class CustomerDAOTests {
 
     @Test
     public void testRegisterAndGetCustomer() throws SQLException {
-        Customer testCustomer = new Customer(0, "Test Customer", "Male", LocalDate.of(1990, 1, 1), "Test Address", "123456789V", "test@example.com", "0771234567", "ACC123", "Active", LocalDate.now(), LocalDate.now());
+        Customer testCustomer = new Customer(0, "Test Customer", "Male",
+                LocalDate.of(1990, 1, 1), "Test Address",
+                "123456789V", "test@example.com", "0771234567", "ACC123",
+                "Active", LocalDate.now(), LocalDate.now());
         
         int customerId = customerDAO.registerCustomer(testCustomer);
         assertTrue(customerId > 0, "Failed to register test customer");
@@ -65,7 +68,10 @@ public class CustomerDAOTests {
     @Test
     public void testUpdateCustomer() throws SQLException {
         System.out.println("updateCustomer");
-        Customer testCustomer = new Customer(0, "Test Customer Update", "Female", LocalDate.of(1985, 5, 15), "Original Address", "987654321V", "update@example.com", "0777654321", "ACC456", "Active", LocalDate.now(), LocalDate.now());
+        Customer testCustomer = new Customer(0, "Test Customer Update", "Female",
+                LocalDate.of(1985, 5, 15), "Original Address", "987654321V",
+                "update@example.com", "0777654321", "ACC456", "Active", LocalDate.now(),
+                LocalDate.now());
         
         int customerId = customerDAO.registerCustomer(testCustomer);
         assertTrue(customerId > 0, "Failed to register test customer");
@@ -97,7 +103,9 @@ public class CustomerDAOTests {
     @Test
     public void testDeleteCustomer() throws SQLException {
         System.out.println("deleteCustomer");
-        Customer testCustomer = new Customer(0, "Test Customer Delete", "Male", LocalDate.of(1995, 3, 10), "Delete Address", "444555666V", "delete@example.com", "0774445556", "ACC789", "Inactive", LocalDate.now(), LocalDate.now());
+        Customer testCustomer = new Customer(0, "Test Customer Delete", "Male", LocalDate.of(1995, 3, 10),
+                "Delete Address", "444555666V", "delete@example.com", "0774445556", "ACC789",
+                "Inactive", LocalDate.now(), LocalDate.now());
         
         int customerId = customerDAO.registerCustomer(testCustomer);
         assertTrue(customerId > 0, "Failed to register test customer");
@@ -108,13 +116,14 @@ public class CustomerDAOTests {
         Customer deletedCustomer = customerDAO.getCustomerById(customerId);
         assertNull(deletedCustomer, "Customer should be deleted");
     }
-
     @Test
     public void testSearchCustomers() throws SQLException {
         System.out.println("searchCustomers");
         CustomerDAO instance = new CustomerDAO();
         System.out.println("Registering customer for search");
-        Customer customer = new Customer(0, "Searchable Customer2", "Female", LocalDate.of(1991, 4, 30), "159 Search Rd", "147258369V", "search2@example.com", "0714567890", "ACC159", "Pending", LocalDate.now(), LocalDate.now());
+        Customer customer = new Customer(0, "Searchable Customer2", "Female", LocalDate.of(1991, 4, 30),
+                "159 Search Rd", "147258369V", "search2@example.com", "0714567890", "ACC159",
+                "Pending", LocalDate.now(), LocalDate.now());
         int newId = instance.registerCustomer(customer);
         assertNotEquals(-1, newId, "Failed to register customer for search test");
 

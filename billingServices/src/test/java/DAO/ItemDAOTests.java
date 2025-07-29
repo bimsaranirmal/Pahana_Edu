@@ -37,7 +37,8 @@ public class ItemDAOTests {
 
     @Test
     public void testAddAndGetItem() throws SQLException {
-        Item testItem = new Item(0, "Test Item", "Test Description", 99.99, 50, 1, LocalDate.now(), LocalDate.now());
+        Item testItem = new Item(0, "Test Item", "Test Description", 99.99, 50, 1,
+                LocalDate.now(), LocalDate.now());
         
         int itemId = itemDAO.addItem(testItem);
         assertTrue(itemId > 0, "Failed to add test item");
@@ -69,7 +70,8 @@ public class ItemDAOTests {
     @Test
     public void testUpdateItem() throws SQLException {
         System.out.println("updateItem");
-        Item testItem = new Item(0, "Test Item Update", "Original Description", 49.99, 25, 2, LocalDate.now(), LocalDate.now());
+        Item testItem = new Item(0, "Test Item Update", "Original Description", 49.99, 25, 2,
+                LocalDate.now(), LocalDate.now());
         
         int itemId = itemDAO.addItem(testItem);
         assertTrue(itemId > 0, "Failed to add test item");
@@ -97,8 +99,8 @@ public class ItemDAOTests {
     @Test
     public void testDeleteItem() throws SQLException {
         System.out.println("deleteItem");
-        Item testItem = new Item(0, "Test Item Delete", "Delete Description", 29.99, 10, 1, LocalDate.now(), LocalDate.now());
-        
+        Item testItem = new Item(0, "Test Item Delete", "Delete Description", 29.99, 10, 1, 
+                LocalDate.now(), LocalDate.now());   
         int itemId = itemDAO.addItem(testItem);
         assertTrue(itemId > 0, "Failed to add test item");
         
@@ -112,7 +114,8 @@ public class ItemDAOTests {
     @Test
     public void testSearchItems() throws SQLException {
         System.out.println("searchItems");
-        Item testItem = new Item(0, "Test Item Search", "Search Description", 79.99, 100, 2, LocalDate.now(), LocalDate.now());
+        Item testItem = new Item(0, "Test Item Search", "Search Description", 79.99, 100, 2,
+                LocalDate.now(), LocalDate.now());
         
         int itemId = itemDAO.addItem(testItem);
         assertTrue(itemId > 0, "Failed to add test item");

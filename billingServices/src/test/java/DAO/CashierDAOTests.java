@@ -36,7 +36,9 @@ public class CashierDAOTests {
     @Test
     public void testRegisterCashier() throws SQLException {
         System.out.println("registerCashiers");
-        Cashier testCashier = new Cashier(0, "Test Cashier", "Male", LocalDate.of(1990, 1, 1), "Test Address", "123456789V", "test@example.com", "0771234567", "Active", LocalDate.now(), LocalDate.now());
+        Cashier testCashier = new Cashier(0, "Test Cashier", "Male", LocalDate.of(1990, 1, 1),
+                "Test Address", "123456789V", "test@example.com", "0771234567", "Active", 
+                LocalDate.now(), LocalDate.now());
         
         int cashierId = cashierDAO.registerCashier(testCashier);
         assertTrue(cashierId > 0, "Failed to register test cashier");
@@ -66,7 +68,9 @@ public class CashierDAOTests {
     @Test
     public void testUpdateCashier() throws SQLException {
         System.out.println("updateCashier");
-        Cashier testCashier = new Cashier(0, "Test Cashier Update", "Female", LocalDate.of(1985, 5, 15), "Original Address", "987654321V", "update@example.com", "0777654321", "Active", LocalDate.now(), LocalDate.now());
+        Cashier testCashier = new Cashier(0, "Test Cashier Update", "Female", LocalDate.of(1985, 5, 15),
+                "Original Address", "987654321V", "update@example.com", "0777654321", "Active",
+                LocalDate.now(), LocalDate.now());
         
         int cashierId = cashierDAO.registerCashier(testCashier);
         assertTrue(cashierId > 0, "Failed to register test cashier");
@@ -98,7 +102,9 @@ public class CashierDAOTests {
     @Test
     public void testDeleteCashier() throws SQLException {
         System.out.println("deleteCashier");
-        Cashier testCashier = new Cashier(0, "Test Cashier Delete", "Male", LocalDate.of(1995, 3, 10), "Delete Address", "444555666V", "delete@example.com", "0774445556", "Inactive", LocalDate.now(), LocalDate.now());
+        Cashier testCashier = new Cashier(0, "Test Cashier Delete", "Male", LocalDate.of(1995, 3, 10),
+                "Delete Address", "444555666V", "delete@example.com", "0774445556", "Inactive",
+                LocalDate.now(), LocalDate.now());
         
         int cashierId = cashierDAO.registerCashier(testCashier);
         assertTrue(cashierId > 0, "Failed to register test cashier");
