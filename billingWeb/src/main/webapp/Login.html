@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A professional login for BookShop Pro's management system.">
+    <title>BookShop Pro - Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #00d4aa;
+            --danger-color: #ff6b6b;
+            --warning-color: #ffd93d;
+            --text-light: rgba(255, 255, 255, 0.9);
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --bg-dark: #0a0f1c;
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --border-radius: 20px;
+            --box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0f1c;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background: linear-gradient(45deg, #0a0f1c, #1a1f2e, #2a2f3e); }
+            50% { background: linear-gradient(45deg, #1a1f2e, #2a2f3e, #0a0f1c); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+      
+        .login-container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+            width: 100%;
+        }
+
+        .login-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .login-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 50px 40px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .book-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            color: white;
+            animation: pulse 2s ease-in-out infinite alternate;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        .login-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-subtitle {
+            opacity: 0.9;
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .login-body {
+            padding: 40px;
+            background: transparent;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+            animation: slideInLeft 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.3s; }
+        .form-group:nth-child(3) { animation-delay: 0.5s; }
+
+        @keyframes slideInLeft {
+            from { 
+                opacity: 0; 
+                transform: translateX(-20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0); 
+            }
+        }
+
+        .input-container {
+            position: relative;
+            border-radius: 12px;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px 55px 18px 18px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+            color: var(--text-light);
+            width: 100%;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            transition: var(--transition);
+            pointer-events: none;
+        }
+
+        .form-control:focus + .input-icon {
+            color: var(--primary-color);
+        }
+
+        .btn-login {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 12px;
+            padding: 18px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            width: 100%;
+            color: white;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-login:hover::before {
+            left: 100%;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-login:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-login:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .alert {
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            border: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .alert-success {
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--success-color);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+        }
+
+        .alert-danger {
+            background: rgba(255, 107, 107, 0.15);
+            color: var(--danger-color);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .loading-spinner {
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-spinner i {
+            margin-right: 10px;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .footer-text i {
+            color: var(--success-color);
+            font-size: 1rem;
+        }
+
+        .demo-hint {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            font-size: 0.85rem;
+            z-index: 1000;
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            max-width: 280px;
+            animation: slideInRight 0.6s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .demo-hint strong {
+            color: var(--primary-color);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* Animation classes */
+        .shake {
+            animation: shake 0.6s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .success-pulse {
+            animation: successPulse 0.6s ease;
+        }
+
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: currentColor;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-close:hover {
+            opacity: 1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 576px) {
+            .login-container {
+                padding: 15px;
+            }
+            .login-header {
+                padding: 40px 30px 30px;
+            }
+            .login-body {
+                padding: 30px 25px;
+            }
+            .login-title {
+                font-size: 1.8rem;
+            }
+            .book-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8rem;
+            }
+            .demo-hint {
+                top: 10px;
+                right: 10px;
+                font-size: 0.8rem;
+                padding: 12px 16px;
+                max-width: 250px;
+            }
+        }
+
+        /* Input validation states */
+        .form-control.is-invalid {
+            border-color: var(--danger-color);
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .form-control.is-valid {
+            border-color: var(--success-color);
+            background: rgba(0, 212, 170, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <div class="login-container">
+            <div class="card login-card">
+                <div class="login-header">
+                    <div class="header-content">
+                        <div class="book-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <h1 class="login-title">BookShop Pro</h1>
+                        <p class="login-subtitle">User Portal</p>
+                    </div>
+                </div>
+                
+                <div class="login-body">
+                    <form id="loginForm">
+                        <div id="alertContainer"></div>
+                        
+                        <div class="form-group">
+                            <div class="input-container">
+                                <input type="text" class="form-control" id="username" placeholder="Enter your username" required aria-label="Username">
+                                <i class="fas fa-user input-icon"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="input-container">
+                                <input type="email" class="form-control" id="email" placeholder="Enter your email address" required aria-label="Email Address">
+                                <i class="fas fa-envelope input-icon"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-login">
+                                <span class="login-text">
+                                    <i class="fas fa-sign-in-alt"></i> Sign In
+                                </span>
+                                <span class="loading-spinner">
+                                    <i class="fas fa-spinner fa-spin"></i> Authenticating...
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="footer-text">
+                <i class="fas fa-shield-alt"></i>
+                Secure Authentication System
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            
+            const loginForm = document.getElementById('loginForm');
+            const alertContainer = document.getElementById('alertContainer');
+            const usernameInput = document.getElementById('username');
+            const emailInput = document.getElementById('email');
+            
+            const adminCredentials = {
+                username: 'admin',
+                email: 'admin@gmail.com'
+            };
+            
+            function showAlert(message, type = 'danger') {
+                const alertHTML = `
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                alertContainer.innerHTML = alertHTML;
+                setTimeout(() => {
+                    const alert = alertContainer.querySelector('.alert');
+                    if (alert) {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    }
+                }, 5000);
+            }
+            
+            function showLoading(show = true) {
+                const loginText = document.querySelector('.login-text');
+                const loadingSpinner = document.querySelector('.loading-spinner');
+                const submitBtn = document.querySelector('.btn-login');
+                if (show) {
+                    loginText.style.display = 'none';
+                    loadingSpinner.style.display = 'inline-flex';
+                    submitBtn.disabled = true;
+                } else {
+                    loginText.style.display = 'inline-flex';
+                    loadingSpinner.style.display = 'none';
+                    submitBtn.disabled = false;
+                }
+            }
+            
+            function navigateToAdminDashboard() {
+                showAlert('Authentication successful! Redirecting to Admin Dashboard...', 'success');
+                loginForm.classList.add('success-pulse');
+                setTimeout(() => {
+                    window.location.href = 'adminDashboard.html';
+                }, 1500);
+            }
+            
+            function navigateToCashierDashboard(cashier) {
+                showAlert('Authentication successful! Redirecting to Cashier Dashboard...', 'success');
+                loginForm.classList.add('success-pulse');
+                // Store cashier details in sessionStorage for security
+                sessionStorage.setItem('cashierDetails', JSON.stringify({
+                    id: cashier.id,
+                    name: cashier.name,
+                    email: cashier.email,
+                    gender: cashier.gender,
+                    dob: cashier.dob,
+                    address: cashier.address,
+                    nic: cashier.nic,
+                    status: cashier.status,
+                    createdAt: cashier.createdAt,
+                    updatedAt: cashier.updatedAt
+                }));
+                setTimeout(() => {
+                    window.location.href = 'cashierdashboard.html';
+                }, 1500);
+            }
+            
+            function validateForm() {
+                const username = usernameInput.value.trim();
+                const email = emailInput.value.trim();
+                let isValid = true;
+                
+                [usernameInput, emailInput].forEach(input => {
+                    input.classList.remove('is-invalid', 'is-valid');
+                });
+                
+                if (!username) {
+                    usernameInput.classList.add('is-invalid');
+                    isValid = false;
+                }
+                
+                if (!email) {
+                    emailInput.classList.add('is-invalid');
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    showAlert('Please fill in all required fields.');
+                    return false;
+                }
+                
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailRegex.test(email)) {
+                    emailInput.classList.add('is-invalid');
+                    showAlert('Please enter a valid email address.');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                alertContainer.innerHTML = '';
+                
+                if (!validateForm()) {
+                    loginForm.classList.add('shake');
+                    setTimeout(() => {
+                        loginForm.classList.remove('shake');
+                    }, 600);
+                    return;
+                }
+                
+                showLoading(true);
+                
+                const username = usernameInput.value.trim();
+                const email = emailInput.value.trim();
+                
+                // Check if admin credentials
+                if (username === adminCredentials.username && email === adminCredentials.email) {
+                    showLoading(false);
+                    navigateToAdminDashboard();
+                    return;
+                }
+                
+                // Attempt cashier login
+                try {
+                    const response = await fetch('http://localhost:8080/billingServices/resources/cashiers/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            username: username,
+                            email: email
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const cashier = await response.json();
+                        showLoading(false);
+                        navigateToCashierDashboard(cashier);
+                    } else {
+                        showLoading(false);
+                        const errorData = await response.json();
+                        showAlert(errorData.error || 'Invalid credentials. Please try again.', 'danger');
+                        loginForm.classList.add('shake');
+                        [usernameInput, emailInput].forEach(input => {
+                            input.classList.add('is-invalid');
+                        });
+                        setTimeout(() => {
+                            loginForm.classList.remove('shake');
+                        }, 600);
+                    }
+                } catch (error) {
+                    showLoading(false);
+                    showAlert('An error occurred while authenticating. Please try again.', 'danger');
+                    loginForm.classList.add('shake');
+                    setTimeout(() => {
+                        loginForm.classList.remove('shake');
+                    }, 600);
+                }
+            });
+            
+            [usernameInput, emailInput].forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.classList.remove('is-invalid');
+                });
+                input.addEventListener('input', function() {
+                    if (this.value.trim()) {
+                        this.classList.add('is-valid');
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

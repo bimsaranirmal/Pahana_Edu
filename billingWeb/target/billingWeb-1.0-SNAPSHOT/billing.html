@@ -1,0 +1,1351 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pahana Edu - Billing Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2B2D42;
+            --primary-dark: #1D1E2C;
+            --secondary: #8D99AE;
+            --accent: #EF233C;
+            --background: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-primary: #2B2D42;
+            --text-secondary: #6B7280;
+        }
+
+        body {
+            background: var(--background);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            background: var(--card-bg);
+        }
+
+        .card-header {
+            background: var(--primary);
+            color: white;
+            border-radius: 12px 12px 0 0;
+            padding: 1.25rem 1.5rem;
+            border-bottom: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-primary {
+            border-color: var(--primary);
+            color: var(--primary);
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .table {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background: var(--primary);
+            color: white;
+            font-weight: 500;
+            text-transform: none;
+            padding: 1rem;
+            border: none;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid #E5E7EB;
+            transition: background 0.2s ease;
+        }
+
+        .table tbody tr:hover {
+            background: #F9FAFB;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #D1D5DB;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            height: 46px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(43,45,66,0.1);
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+        }
+
+        .modal-header {
+            background: var(--primary);
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .spinner-overlay {
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 10000;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-buttons .btn {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: var(--primary);
+            color: white;
+            padding: 10px;
+        }
+
+        .avatar-sm {
+            width: 32px;
+            height: 32px;
+        }
+
+        .search-buttons .btn {
+            height: 46px;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Print styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printSection, #printSection * {
+                visibility: visible;
+            }
+            #printSection {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        #printSection {
+            display: none;
+        }
+
+        /* Responsive modal for recent bills */
+        @media (max-width: 576px) {
+            .modal-dialog.modal-lg {
+                margin: 0.5rem;
+                max-width: 100%;
+            }
+            .modal-body {
+                padding: 1rem;
+            }
+            .table-responsive {
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Quantity input styles */
+        .quantity-control {
+            display: flex;
+            align-items: center;
+        }
+        .quantity-control input {
+            width: 60px;
+            text-align: center;
+            margin: 0 5px;
+            height: 32px;
+            font-size: 0.875rem;
+        }
+        .quantity-control button {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg no-print">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-receipt me-2"></i>Billing Management
+            </a>
+        </div>
+    </nav>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="spinner-overlay d-none no-print">
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-3">
+                <h5>Loading...</h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid py-5 no-print" style="margin-top: 20px; margin-bottom: 60px;">
+        <!-- Create Bill Section -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header">
+                <h5 class="mb-0">Create New Bill</h5>
+            </div>
+            <div class="card-body">
+                <form id="createBillForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Customer</label>
+                            <div class="input-group">
+                                <input type="text" id="customerDisplay" class="form-control" placeholder="Select a customer" readonly>
+                                <input type="hidden" id="customerId" required>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#customerModal">
+                                    <i class="fas fa-user-plus"></i>
+                                </button>
+                                <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#itemModal">
+                                    <i class="fas fa-box-open"></i> Add Item
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="table-responsive">
+                                <table id="billItemsTable" class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Unit Price</th>
+                                            <th>Quantity</th>
+                                            <th>Subtotal</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="billItemsTableBody"></tbody>
+                                </table>
+                            </div>
+                            <div class="text-end mt-3">
+                                <h5>Total: LKR <span id="totalAmount">0.00</span></h5>
+                            </div>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#recentBillsModal">
+                                <i class="fas fa-receipt me-1"></i>View Recent Bills
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Save Bill
+                            </button>
+                            <button type="button" id="clearBillBtn" class="btn btn-outline-primary">
+                                <i class="fas fa-eraser me-1"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Selection Modal -->
+    <div class="modal fade no-print" id="customerModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Customer</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Search by Name</label>
+                            <input type="text" id="customerSearchName" class="form-control" placeholder="Enter customer name">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Search by Phone</label>
+                            <input type="text" id="customerSearchPhone" class="form-control" placeholder="Enter phone number">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Search by Account No</label>
+                            <input type="text" id="customerSearchAccountNo" class="form-control" placeholder="Enter account number">
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="customersTable" class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Account No</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Selection Modal -->
+    <div class="modal fade no-print" id="itemModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Item</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Search by Name</label>
+                            <input type="text" id="searchName" class="form-control" placeholder="Enter item name">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Search by ID</label>
+                            <input type="number" id="searchId" class="form-control" placeholder="Enter item ID">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Category</label>
+                            <select id="searchCategory" class="form-select">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="itemsTable" class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quantity Input Modal -->
+    <div class="modal fade no-print" id="quantityModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Enter Quantity</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Item: <span id="quantityModalItemName"></span></label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Available Stock: <span id="quantityModalStock"></span></label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantityInput" class="form-label">Quantity</label>
+                        <input type="number" id="quantityInput" class="form-control" min="1" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                    <button type="button" id="confirmQuantityBtn" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Add to Bill
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Bills Modal -->
+    <div class="modal fade no-print" id="recentBillsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Recent Bills</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table id="billsTable" class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Bill No</th>
+                                    <th>Bill ID</th>
+                                    <th>Customer</th>
+                                    <th>Total Amount</th>
+                                    <th>Created At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="billsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bill Details Modal -->
+    <div class="modal fade no-print" id="billDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Bill Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Bill No</label>
+                            <input type="text" id="detailBillNo" class="form-control" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Bill ID</label>
+                            <input type="text" id="detailBillId" class="form-control" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Customer</label>
+                            <input type="text" id="detailCustomer" class="form-control" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Total Amount</label>
+                            <input type="text" id="detailTotalAmount" class="form-control" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Created At</label>
+                            <input type="text" id="detailCreatedAt" class="form-control" readonly>
+                        </div>
+                        <div class="col-12">
+                            <h5>Items</h5>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Unit Price</th>
+                                            <th>Quantity</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="detailItemsTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" onclick="openSendBillModal(document.getElementById('detailBillId').value, document.getElementById('detailBillNo').value, null, document.getElementById('detailCustomer').value)">
+                        <i class="fas fa-paper-plane me-1"></i>Send Bill
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Send Bill Modal -->
+    <div class="modal fade no-print" id="sendBillModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Send Bill via Email</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Bill No: <span id="sendBillNo"></span></label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Customer: <span id="sendCustomerName"></span></label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerEmail" class="form-label">Customer Email</label>
+                        <input type="email" id="customerEmail" class="form-control" placeholder="Enter customer email" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                    <button type="button" id="sendBillBtn" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i>Send Bill
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Section -->
+    <div id="printSection">
+        <h2>Pahana Edu - Bill</h2>
+        <hr>
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Bill No:</strong> <span id="printBillNo"></span></p>
+                <p><strong>Bill ID:</strong> <span id="printBillId"></span></p>
+                <p><strong>Customer:</strong> <span id="printCustomer"></span></p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Total Amount:</strong> <span id="printTotalAmount"></span></p>
+                <p><strong>Created At:</strong> <span id="printCreatedAt"></span></p>
+            </div>
+        </div>
+        <h4>Items</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Unit Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody id="printItemsTableBody"></tbody>
+        </table>
+        <p class="text-end"><strong>Total: <span id="printTotal"></span></strong></p>
+        <p class="text-center">Thank you for your business!</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer no-print">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">© 2025 Pahana Edu. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white text-decoration-none me-3">Privacy Policy</a>
+                    <a href="#" class="text-white text-decoration-none">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/billingServices/resources';
+        let billItems = [];
+        let allItems = [];
+        let allCustomers = [];
+        let billDetailsModal;
+        let quantityModal;
+        let customerModal;
+        let itemModal;
+        let recentBillsModal;
+        let sendBillModal;
+        let currentItemToAdd = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            billDetailsModal = new bootstrap.Modal(document.getElementById('billDetailsModal'));
+            quantityModal = new bootstrap.Modal(document.getElementById('quantityModal'));
+            customerModal = new bootstrap.Modal(document.getElementById('customerModal'));
+            itemModal = new bootstrap.Modal(document.getElementById('itemModal'));
+            recentBillsModal = new bootstrap.Modal(document.getElementById('recentBillsModal'));
+            sendBillModal = new bootstrap.Modal(document.getElementById('sendBillModal'));
+
+            loadCustomers();
+            loadCategories();
+            loadItems();
+            loadRecentBills();
+
+            // Add event listeners for item filtering
+            document.getElementById('searchName').addEventListener('input', filterItems);
+            document.getElementById('searchId').addEventListener('input', filterItems);
+            document.getElementById('searchCategory').addEventListener('change', filterItems);
+
+            // Add event listeners for customer filtering
+            document.getElementById('customerSearchName').addEventListener('input', filterCustomers);
+            document.getElementById('customerSearchPhone').addEventListener('input', filterCustomers);
+            document.getElementById('customerSearchAccountNo').addEventListener('input', filterCustomers);
+
+            // Handle send bill button click
+            document.getElementById('sendBillBtn').addEventListener('click', sendBill);
+        });
+
+        // Load customers (for modal)
+        async function loadCustomers() {
+            try {
+                showLoading();
+                const response = await fetch(`${API_BASE_URL}/customers?status=approved`);
+                allCustomers = await response.json();
+                displayCustomers(allCustomers);
+            } catch (error) {
+                console.error('Error loading customers:', error);
+                showToast('Failed to load customers', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Display customers in modal table
+        function displayCustomers(customers) {
+            const tableBody = document.getElementById('customersTableBody');
+            tableBody.innerHTML = '';
+
+            if (customers.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-users fa-2x mb-3"></i>
+                                <h5>No customers found</h5>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            customers.forEach(customer => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${customer.id}</td>
+                    <td>${customer.name}</td>
+                    <td>${customer.phone || '-'}</td>
+                    <td>${customer.accountNumber || '-'}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick='selectCustomer(${JSON.stringify({ id: customer.id, name: customer.name })})' >
+                            <i class="fas fa-check"></i> Select
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Filter customers based on search criteria
+        function filterCustomers() {
+            const searchName = document.getElementById('customerSearchName').value.toLowerCase();
+            const searchPhone = document.getElementById('customerSearchPhone').value.toLowerCase();
+            const searchAccountNo = document.getElementById('customerSearchAccountNo').value.toLowerCase();
+
+            const filteredCustomers = allCustomers.filter(customer => {
+                const matchesName = searchName ? customer.name.toLowerCase().includes(searchName) : true;
+                const matchesPhone = searchPhone ? (customer.phone || '').toLowerCase().includes(searchPhone) : true;
+                const matchesAccountNo = searchAccountNo ? (customer.accountNumber || '').toLowerCase().includes(searchAccountNo) : true;
+                return matchesName && matchesPhone && matchesAccountNo;
+            });
+
+            displayCustomers(filteredCustomers);
+        }
+
+        // Select customer from modal
+        function selectCustomer(customer) {
+            document.getElementById('customerId').value = customer.id;
+            document.getElementById('customerDisplay').value = customer.name;
+            customerModal.hide();
+        }
+
+        // Load categories into dropdown
+        async function loadCategories() {
+            try {
+                showLoading();
+                const response = await fetch(`${API_BASE_URL}/categories`);
+                const categories = await response.json();
+                const categorySelect = document.getElementById('searchCategory');
+                categorySelect.innerHTML = '<option value="">All Categories</option>';
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    categorySelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading categories:', error);
+                showToast('Failed to load categories', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Load items into table
+        async function loadItems() {
+            try {
+                showLoading();
+                const response = await fetch(`${API_BASE_URL}/items`);
+                allItems = await response.json();
+                displayItems(allItems);
+            } catch (error) {
+                console.error('Error loading items:', error);
+                showToast('Failed to load items', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Display items in table
+        async function displayItems(items) {
+            const tableBody = document.getElementById('itemsTableBody');
+            tableBody.innerHTML = '';
+
+            if (items.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-box-open fa-2x mb-3"></i>
+                                <h5>No items found</h5>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const categoryResponse = await fetch(`${API_BASE_URL}/categories`);
+            const categories = await categoryResponse.json();
+            const categoryMap = {};
+            categories.forEach(category => {
+                categoryMap[category.id] = category.name;
+            });
+
+            items.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${categoryMap[item.categoryId] || 'Uncategorized'}</td>
+                    <td>LKR ${item.price.toFixed(2)}</td>
+                    <td>${item.stockQuantity}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick='addItemToBill(${JSON.stringify({ id: item.id, name: item.name, price: item.price, stock: item.stockQuantity })})' ${item.stockQuantity === 0 ? 'disabled' : ''}>
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Filter items based on search criteria
+        function filterItems() {
+            const searchName = document.getElementById('searchName').value.toLowerCase();
+            const searchId = document.getElementById('searchId').value;
+            const searchCategory = document.getElementById('searchCategory').value;
+
+            const filteredItems = allItems.filter(item => {
+                const matchesName = searchName ? item.name.toLowerCase().includes(searchName) : true;
+                const matchesId = searchId ? item.id.toString() === searchId : true;
+                const matchesCategory = searchCategory ? item.categoryId?.toString() === searchCategory : true;
+                return matchesName && matchesId && matchesCategory;
+            });
+
+            displayItems(filteredItems);
+        }
+
+        // Add item to bill (open quantity modal)
+        function addItemToBill(itemData) {
+            currentItemToAdd = itemData;
+            document.getElementById('quantityModalItemName').textContent = itemData.name;
+            document.getElementById('quantityModalStock').textContent = itemData.stock;
+            document.getElementById('quantityInput').value = '';
+            itemModal.hide();
+            quantityModal.show();
+        }
+
+        // Confirm quantity and add to bill
+        document.getElementById('confirmQuantityBtn').addEventListener('click', () => {
+            const quantity = parseInt(document.getElementById('quantityInput').value);
+            if (!quantity || quantity <= 0) {
+                showToast('Please enter a valid quantity', 'danger');
+                return;
+            }
+            if (quantity > currentItemToAdd.stock) {
+                showToast(`Quantity exceeds available stock (${currentItemToAdd.stock}) for ${currentItemToAdd.name}`, 'danger');
+                return;
+            }
+
+            const existingItem = billItems.find(item => item.itemId === currentItemToAdd.id);
+            if (existingItem) {
+                showToast('Item already added to bill', 'danger');
+                return;
+            }
+
+            const billItem = {
+                itemId: currentItemToAdd.id,
+                name: currentItemToAdd.name,
+                quantity: quantity,
+                unitPrice: currentItemToAdd.price,
+                subtotal: quantity * currentItemToAdd.price,
+                stock: currentItemToAdd.stock // Store stock for validation
+            };
+            billItems.push(billItem);
+            updateBillItemsTable();
+            updateTotalAmount();
+            quantityModal.hide();
+        });
+
+        // Update bill items table
+        function updateBillItemsTable() {
+            const tableBody = document.getElementById('billItemsTableBody');
+            tableBody.innerHTML = '';
+            billItems.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>LKR ${item.unitPrice.toFixed(2)}</td>
+                    <td>
+                        <div class="quantity-control">
+                            <button class="btn btn-outline-primary btn-sm" onclick="changeQuantity(${index}, -1)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" value="${item.quantity}" min="1" max="${item.stock}" onchange="updateQuantity(${index}, this.value)">
+                            <button class="btn btn-outline-primary btn-sm" onclick="changeQuantity(${index}, 1)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td>LKR ${item.subtotal.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="removeBillItem(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Change quantity using buttons
+        function changeQuantity(index, delta) {
+            const item = billItems[index];
+            const newQuantity = item.quantity + delta;
+            if (newQuantity < 1) {
+                showToast('Quantity cannot be less than 1', 'danger');
+                return;
+            }
+            if (newQuantity > item.stock) {
+                showToast(`Quantity exceeds available stock (${item.stock}) for ${item.name}`, 'danger');
+                return;
+            }
+            item.quantity = newQuantity;
+            item.subtotal = item.quantity * item.unitPrice;
+            updateBillItemsTable();
+            updateTotalAmount();
+        }
+
+        // Update quantity from input
+        function updateQuantity(index, value) {
+            const newQuantity = parseInt(value);
+            const item = billItems[index];
+            if (!newQuantity || newQuantity < 1) {
+                showToast('Please enter a valid quantity', 'danger');
+                item.quantity = 1; // Reset to 1 if invalid
+            } else if (newQuantity > item.stock) {
+                showToast(`Quantity exceeds available stock (${item.stock}) for ${item.name}`, 'danger');
+                item.quantity = item.stock; // Set to max stock
+            } else {
+                item.quantity = newQuantity;
+            }
+            item.subtotal = item.quantity * item.unitPrice;
+            updateBillItemsTable();
+            updateTotalAmount();
+        }
+
+        // Remove item from bill
+        function removeBillItem(index) {
+            billItems.splice(index, 1);
+            updateBillItemsTable();
+            updateTotalAmount();
+        }
+
+        // Update total amount
+        function updateTotalAmount() {
+            const total = billItems.reduce((sum, item) => sum + item.subtotal, 0);
+            document.getElementById('totalAmount').textContent = total.toFixed(2);
+        }
+
+        // Save bill and send email
+        document.getElementById('createBillForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const customerId = parseInt(document.getElementById('customerId').value);
+            const customerName = document.getElementById('customerDisplay').value;
+            if (!customerId || billItems.length === 0) {
+                showToast('Please select a customer and add at least one item', 'danger');
+                return;
+            }
+
+            const bill = {
+                customerId: customerId,
+                totalAmount: parseFloat(document.getElementById('totalAmount').textContent),
+                billItems: billItems.map(item => ({
+                    itemId: item.itemId,
+                    quantity: item.quantity,
+                    unitPrice: item.unitPrice,
+                    subtotal: item.subtotal
+                }))
+            };
+
+            showLoading();
+            try {
+                // Save the bill
+                const response = await fetch(`${API_BASE_URL}/bills`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bill)
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    showToast('Bill created successfully');
+                    const billId = result;
+                    const billNo = `BILL-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-000${billId}`;
+                    // Create billData with item names from billItems
+                    const billData = {
+                        id: billId,
+                        billNo: billNo,
+                        customerId: customerId,
+                        customerName: customerName,
+                        totalAmount: bill.totalAmount,
+                        createdAt: new Date().toISOString().slice(0,10),
+                        billItems: billItems.map(item => ({
+                            itemId: item.itemId,
+                            name: item.name, // Use name from local billItems
+                            quantity: item.quantity,
+                            unitPrice: item.unitPrice,
+                            subtotal: item.subtotal
+                        }))
+                    };
+                    printBill(billData);
+
+                    // Fetch customer email and send bill
+                    try {
+                        const customerResponse = await fetch(`${API_BASE_URL}/customers/${customerId}`);
+                        const customer = await customerResponse.json();
+                        if (customerResponse.ok && customer.email) {
+                            window.currentBillId = billId; // Set billId for sendBill
+                            await sendBill(customer.email); // Send email using customer.email
+                        } else {
+                            showToast('Customer email not found. Bill saved but not sent.', 'warning');
+                        }
+                    } catch (error) {
+                        console.error('Error fetching customer email:', error);
+                        showToast('Failed to fetch customer email. Bill saved but not sent.', 'danger');
+                    }
+
+                    clearBillForm();
+                    loadRecentBills();
+                    loadItems();
+                } else {
+                    showToast(result.error || 'Failed to create bill', 'danger');
+                }
+            } catch (error) {
+                console.error('Error creating bill:', error);
+                showToast('Failed to create bill', 'danger');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Clear bill form
+        document.getElementById('clearBillBtn').addEventListener('click', clearBillForm);
+
+        function clearBillForm() {
+            document.getElementById('createBillForm').reset();
+            document.getElementById('customerId').value = '';
+            document.getElementById('customerDisplay').value = '';
+            billItems = [];
+            updateBillItemsTable();
+            updateTotalAmount();
+        }
+
+        // Load recent bills (filtered by current date)
+        async function loadRecentBills() {
+            showLoading();
+            try {
+                const response = await fetch(`${API_BASE_URL}/bills/customer/0`);
+                const bills = await response.json();
+                console.log('Fetched bills:', bills);
+                // Filter bills by current date
+                const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+                const filteredBills = bills.filter(bill => bill.createdAt.slice(0, 10) === today);
+                displayBills(filteredBills);
+            } catch (error) {
+                console.error('Error loading bills:', error);
+                showToast('Failed to load bills', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Display bills in table
+        async function displayBills(bills) {
+            const tableBody = document.getElementById('billsTableBody');
+            tableBody.innerHTML = '';
+
+            if (bills.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-receipt fa-2x mb-3"></i>
+                                <h5>No bills found for today</h5>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let customerMap = {};
+            try {
+                const customerResponse = await fetch(`${API_BASE_URL}/customers`);
+                if (customerResponse.ok) {
+                    const customers = await customerResponse.json();
+                    customers.forEach(customer => {
+                        customerMap[customer.id] = customer.name;
+                    });
+                } else {
+                    console.error('Failed to fetch customers:', customerResponse.status);
+                    showToast('Failed to load customer data', 'danger');
+                }
+            } catch (error) {
+                console.error('Error fetching customers:', error);
+                showToast('Failed to load customer data', 'danger');
+            }
+
+            bills.forEach(bill => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${bill.billNo}</td>
+                    <td>${bill.id}</td>
+                    <td>${customerMap[bill.customerId] || 'Unknown'}</td>
+                    <td>LKR ${bill.totalAmount.toFixed(2)}</td>
+                    <td>${formatDate(bill.createdAt)}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm me-1" onclick="viewBillDetails(${bill.id})">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-success btn-sm me-1" onclick="printBillFromTable(${bill.id}, '${bill.billNo}', ${bill.customerId}, '${customerMap[bill.customerId] || 'Unknown'}', ${bill.totalAmount}, '${bill.createdAt}')">
+                            <i class="fas fa-print"></i>
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="openSendBillModal(${bill.id}, '${bill.billNo}', ${bill.customerId}, '${customerMap[bill.customerId] || 'Unknown'}')">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // View bill details
+        async function viewBillDetails(billId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/bills/${billId}`);
+                const bill = await response.json();
+                if (response.ok) {
+                    const customerResponse = await fetch(`${API_BASE_URL}/customers/${bill.customerId}`);
+                    const customer = await customerResponse.json();
+                    const itemResponse = await fetch(`${API_BASE_URL}/items`);
+                    const items = await itemResponse.json();
+                    const itemMap = {};
+                    items.forEach(item => {
+                        itemMap[item.id] = item.name;
+                    });
+
+                    document.getElementById('detailBillNo').value = bill.billNo;
+                    document.getElementById('detailBillId').value = bill.id;
+                    document.getElementById('detailCustomer').value = customer.name || 'Unknown';
+                    document.getElementById('detailTotalAmount').value = `LKR ${bill.totalAmount.toFixed(2)}`;
+                    document.getElementById('detailCreatedAt').value = formatDate(bill.createdAt);
+
+                    const detailItemsTableBody = document.getElementById('detailItemsTableBody');
+                    detailItemsTableBody.innerHTML = '';
+                    bill.billItems.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${itemMap[item.itemId] || 'Unknown'}</td>
+                            <td>LKR ${item.unitPrice.toFixed(2)}</td>
+                            <td>${item.quantity}</td>
+                            <td>LKR ${item.subtotal.toFixed(2)}</td>
+                        `;
+                        detailItemsTableBody.appendChild(row);
+                    });
+
+                    billDetailsModal.show();
+                } else {
+                    showToast(bill.error || 'Failed to fetch bill details', 'danger');
+                }
+            } catch (error) {
+                console.error('Error fetching bill details:', error);
+                showToast('Failed to fetch bill details', 'danger');
+            }
+        }
+
+        // Print bill from recent bills table
+        async function printBillFromTable(billId, billNo, customerId, customerName, totalAmount, createdAt) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/bills/${billId}`);
+                const bill = await response.json();
+                if (response.ok) {
+                    const billData = {
+                        id: billId,
+                        billNo: billNo,
+                        customerId: customerId,
+                        customerName: customerName,
+                        totalAmount: totalAmount,
+                        createdAt: createdAt,
+                        billItems: bill.billItems
+                    };
+                    const itemResponse = await fetch(`${API_BASE_URL}/items`);
+                    const items = await itemResponse.json();
+                    const itemMap = {};
+                    items.forEach(item => {
+                        itemMap[item.id] = item.name;
+                    });
+                    billData.billItems.forEach(item => {
+                        item.name = itemMap[item.itemId] || 'Unknown';
+                    });
+                    printBill(billData);
+                } else {
+                    showToast(bill.error || 'Failed to fetch bill details for printing', 'danger');
+                }
+            } catch (error) {
+                console.error('Error fetching bill details for printing:', error);
+                showToast('Failed to fetch bill details for printing', 'danger');
+            }
+        }
+
+        // Print bill
+        function printBill(billData) {
+            const printSection = document.getElementById('printSection');
+            document.getElementById('printBillNo').textContent = billData.billNo;
+            document.getElementById('printBillId').textContent = billData.id;
+            document.getElementById('printCustomer').textContent = billData.customerName || 'Unknown';
+            document.getElementById('printTotalAmount').textContent = `LKR ${billData.totalAmount.toFixed(2)}`;
+            document.getElementById('printCreatedAt').textContent = formatDate(billData.createdAt);
+            document.getElementById('printTotal').textContent = `LKR ${billData.totalAmount.toFixed(2)}`;
+
+            const printItemsTableBody = document.getElementById('printItemsTableBody');
+            printItemsTableBody.innerHTML = '';
+            billData.billItems.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.name || 'Unknown'}</td>
+                    <td>LKR ${item.unitPrice.toFixed(2)}</td>
+                    <td>${item.quantity}</td>
+                    <td>LKR ${item.subtotal.toFixed(2)}</td>
+                `;
+                printItemsTableBody.appendChild(row);
+            });
+
+            printSection.style.display = 'block';
+            window.print();
+            printSection.style.display = 'none';
+        }
+
+        // Open send bill modal
+        async function openSendBillModal(billId, billNo, customerId, customerName) {
+            document.getElementById('sendBillNo').textContent = billNo;
+            document.getElementById('sendCustomerName').textContent = customerName;
+            document.getElementById('customerEmail').value = '';
+
+            // Fetch customer email if customerId is provided
+            if (customerId) {
+                try {
+                    showLoading();
+                    const response = await fetch(`${API_BASE_URL}/customers/${customerId}`);
+                    const customer = await response.json();
+                    if (response.ok) {
+                        document.getElementById('customerEmail').value = customer.email || '';
+                    }
+                } catch (error) {
+                    console.error('Error fetching customer details:', error);
+                    showToast('Failed to load customer email', 'danger');
+                } finally {
+                    hideLoading();
+                }
+            }
+
+            sendBillModal.show();
+            window.currentBillId = billId; // Store billId for sending
+        }
+
+        // Send bill via email
+        async function sendBill(email) {
+            const billId = window.currentBillId;
+            if (!email) {
+                showToast('Please enter a valid email address', 'danger');
+                return;
+            }
+
+            try {
+                showLoading();
+                const response = await fetch(`${API_BASE_URL}/bills/${billId}/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    showToast(result.message || 'Bill sent successfully');
+                    sendBillModal.hide();
+                } else {
+                    showToast(result.error || 'Failed to send bill', 'danger');
+                }
+            } catch (error) {
+                console.error('Error sending bill:', error);
+                showToast('Failed to send bill', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Show loading spinner
+        function showLoading() {
+            document.getElementById('loadingSpinner').classList.remove('d-none');
+        }
+
+        // Hide loading spinner
+        function hideLoading() {
+            document.getElementById('loadingSpinner').classList.add('d-none');
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type} border-0`;
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            
+            const container = document.getElementById('toastContainer') || createToastContainer();
+            container.appendChild(toast);
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            
+            toast.addEventListener('hidden.bs.toast', () => toast.remove());
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            container.style.zIndex = '9999';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            return new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+    </script>
+</body>
+</html>

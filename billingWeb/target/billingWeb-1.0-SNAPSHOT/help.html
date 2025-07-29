@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pahana Edu - Help & Support</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2B2D42;
+            --primary-dark: #1D1E2C;
+            --secondary: #8D99AE;
+            --accent: #EF233C;
+            --background: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-primary: #2B2D42;
+            --text-secondary: #6B7280;
+        }
+
+        body {
+            background: var(--background);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            background: var(--card-bg);
+        }
+
+        .card-header {
+            background: var(--primary);
+            color: white;
+            border-radius: 12px 12px 0 0;
+            padding: 1.25rem 1.5rem;
+            border-bottom: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #D1D5DB;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            height: 46px;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(43,45,66,0.1);
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: var(--primary);
+            color: white;
+            padding: 10px;
+        }
+
+        .accordion-button {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .accordion-button:not(.collapsed) {
+            background: var(--primary);
+            color: white;
+        }
+
+        .accordion-button:focus {
+            box-shadow: none;
+            border-color: var(--primary);
+        }
+
+        .search-buttons .btn {
+            height: 46px;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 576px) {
+            .container-fluid {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-question-circle me-2"></i>Help & Support
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid py-5" style="margin-top: 20px; margin-bottom: 60px;">
+        <!-- Help Section -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header">
+                <h5 class="mb-0">Pahana Edu System Usage Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <h5>Welcome to Pahana Edu</h5>
+                <p>
+                    The Pahana Edu system is a web-based platform designed to manage administrative tasks such as billing, inventory, customers, and reports. This guide provides step-by-step instructions for new users to navigate and use the system effectively.
+                </p>
+
+                <!-- Accordion for Help Topics -->
+                <div class="accordion" id="helpAccordion">
+                    <!-- Getting Started -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                1. Getting Started
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#helpAccordion">
+                            <div class="accordion-body">
+                                <h6>Accessing the System</h6>
+                                <ul>
+                                    <li><strong>Login</strong>: Use your credentials to log in via the login page.</li>
+                                    <li><strong>Browser</strong>: Use a modern browser (e.g., Chrome, Firefox, Edge) for the best experience.</li>
+                                    <li><strong>Responsive Design</strong>: The system is mobile-friendly. On smaller screens, use the hamburger menu (<i class="fas fa-bars"></i>) to toggle the sidebar.</li>
+                                </ul>
+                                <h6>Navigating the Interface</h6>
+                                <ul>
+                                    <li><strong>Sidebar</strong>: Access all modules (Dashboard, Billing, etc.) from the left sidebar.</li>
+                                    <li><strong>Main Content</strong>: Displays the selected module in the main frame.</li>
+                                    <li><strong>Footer</strong>: Contains copyright information and links to Privacy Policy and Terms of Service.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Billing Module -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                2. Using the Billing Module
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#helpAccordion">
+                            <div class="accordion-body">
+                                <h6>Creating a New Bill</h6>
+                                <ol>
+                                    <li><strong>Select Customer</strong>: Click the <strong>Select Customer</strong> button, search for a customer, and click <strong>Select</strong>.</li>
+                                    <li><strong>Add Items</strong>: Click <strong>Add Item</strong>, select an item, and enter the quantity (must not exceed available stock).</li>
+                                    <li><strong>Review and Save</strong>: Verify the total amount and click <strong>Save Bill</strong> to generate a printable bill.</li>
+                                    <li><strong>Clear Form</strong>: Click <strong>Clear</strong> to reset the form.</li>
+                                </ol>
+                                <h6>Viewing Recent Bills</h6>
+                                <ul>
+                                    <li>Click <strong>View Recent Bills</strong> to see a list of recent bills.</li>
+                                    <li>Use the <strong>View</strong> button to see bill details or the <strong>Print</strong> button to print a bill.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Billing Details Module -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                3. Using the Billing Details Module
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#helpAccordion">
+                            <div class="accordion-body">
+                                <h6>Filtering Bills</h6>
+                                <ul>
+                                    <li>Use filters (Customer, Bill Number, Account No, Date Range) to narrow down the list of bills.</li>
+                                    <li>Click <strong>Apply Filters</strong> to update the table or <strong>Clear Filters</strong> to reset.</li>
+                                </ul>
+                                <h6>Viewing and Printing</h6>
+                                <ul>
+                                    <li>Click the <strong>View</strong> button to see detailed bill information.</li>
+                                    <li>Click the <strong>Print</strong> button to generate a printable bill.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item Management Module -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingFour">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                4. Using the Item Management Module
+                            </button>
+                        </h2>
+                        <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#helpAccordion">
+                            <div class="accordion-body">
+                                <h6>Searching and Filtering Items</h6>
+                                <ul>
+                                    <li>Search by Name, Description, or Category.</li>
+                                    <li>Use Stock Range boxes (0-50, 50-100, 100+) to filter items by stock quantity.</li>
+                                    <li>Click <strong>Search</strong> to apply filters or <strong>Clear</strong> to reset.</li>
+                                </ul>
+                                <h6>Creating and Updating Items</h6>
+                                <ul>
+                                    <li>Click <strong>Create New Item</strong> to open the create modal and enter item details.</li>
+                                    <li>Click the <strong>Edit</strong> button on an item to update its details.</li>
+                                    <li>Click the <strong>Delete</strong> button to remove an item (confirmation required).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Management Module -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingFive">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                5. Using the Category Management Module
+                            </button>
+                        </h2>
+                        <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#helpAccordion">
+                            <div class="accordion-body">
+                                <h6>Searching and Filtering Categories</h6>
+                                <ul>
+                                    <li>Search by Category Name or Description in the search form.</li>
+                                    <li>Click <strong>Search</strong> to filter categories or <strong>Clear</strong> to reset the form and view all categories.</li>
+                                </ul>
+                                <h6>Creating and Updating Categories</h6>
+                                <ul>
+                                    <li>Click <strong>Create New Category</strong> to open the create modal, enter the category name and optional description, and click <strong>Create Category</strong>.</li>
+                                    <li>Click the <strong>Edit</strong> button on a category to update its name or description in the update modal.</li>
+                                    <li>Click the <strong>Delete</strong> button to remove a category. Note: Deleting a category will set the category of linked items to null.</li>
+                                </ul>
+                                <h6>Refreshing Data</h6>
+                                <ul>
+                                    <li>Click the <strong>Refresh</strong> button to reload all categories and clear any applied filters.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Management Module -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingSix">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                                6. Using the Customer Management Module
+                            </button>
+                        </h2>
+                        <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#helpAccordion">
+                            <div class="accordion-body">
+                                <h6>Searching and Filtering Customers</h6>
+                                <ul>
+                                    <li>Search by Name, Gender, NIC, Email, Phone, Account Number, or Status (Pending, Approved, Rejected).</li>
+                                    <li>Click <strong>Search</strong> to filter customers or <strong>Clear</strong> to reset the form and view all customers.</li>
+                                </ul>
+                                <h6>Creating and Updating Customers</h6>
+                                <ul>
+                                    <li>Click <strong>Create New Account</strong> to open the create modal, enter customer details (Name, Gender, DOB, NIC, Address, Email, Phone, Account Number), and click <strong>Create Account</strong>.</li>
+                                    <li>Click the <strong>Edit</strong> button on a customer to update their details in the update modal.</li>
+                                    <li>Click the <strong>Delete</strong> button to remove a customer (confirmation required).</li>
+                                </ul>
+                                <h6>Managing Customer Status</h6>
+                                <ul>
+                                    <li>Click the <strong>Approve</strong> button (<i class="fas fa-check"></i>) to set a customer’s status to Approved.</li>
+                                    <li>Click the <strong>Reject</strong> button (<i class="fas fa-times"></i>) to set a customer’s status to Rejected.</li>
+                                </ul>
+                                <h6>Refreshing Data</h6>
+                                <ul>
+                                    <li>Click the <strong>Refresh</strong> button to reload all customers and clear any applied filters.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tips and Best Practices -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingSeven">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+                                7. Tips and Best Practices
+                            </button>
+                        </h2>
+                        <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven" data-bs-parent="#helpAccordion">
+                            <div class="accordion-body">
+                                <ul>
+                                    <li><strong>Check Stock</strong>: Always verify item stock before adding to a bill.</li>
+                                    <li><strong>Clear Filters</strong>: Reset filters to view all data if results are limited.</li>
+                                    <li><strong>Customer Status</strong>: Ensure customers are Approved before creating bills for them.</li>
+                                    <li><strong>Category Management</strong>: Organize items into categories to improve search efficiency in the Billing module.</li>
+                                    <li><strong>Print Layout</strong>: Ensure your browser's print settings are set to "Fit to Page" for optimal bill printing.</li>
+                                    <li><strong>API Connectivity</strong>: Ensure the backend API (`http://localhost:8080/billingServices/resources`) is running to avoid errors.</li>
+                                    <li><strong>Toast Notifications</strong>: Pay attention to success or error messages for feedback on actions.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Support -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingEight">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEight" aria-expanded="false" aria-controls="collapseEight">
+                                8. Getting Support
+                            </button>
+                        </h2>
+                        <div id="collapseEight" class="accordion-collapse collapse" aria-labelledby="headingEight" data-bs-parent="#helpAccordion">
+                            <div class="accordion-body">
+                                <p>If you encounter issues or have questions:</p>
+                                <ul>
+                                    <li>Contact the system administrator via email: <a href="mailto:support@pahanaedu.com">support@pahanaedu.com</a>.</li>
+                                    <li>Check the <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a> for additional information.</li>
+                                    <li>Review the system logs in the browser console (F12) for error details if needed.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">© 2025 Pahana Edu. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white text-decoration-none me-3">Privacy Policy</a>
+                    <a href="#" class="text-white text-decoration-none">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Handle contact form submission
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const message = document.getElementById('contactMessage').value;
+
+            // Placeholder for API call or email submission logic
+            showToast('Support message sent successfully!', 'success');
+            document.getElementById('contactForm').reset();
+        });
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type} border-0`;
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            
+            const container = document.getElementById('toastContainer') || createToastContainer();
+            container.appendChild(toast);
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            
+            toast.addEventListener('hidden.bs.toast', () => toast.remove());
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            container.style.zIndex = '9999';
+            document.body.appendChild(container);
+            return container;
+        }
+    </script>
+</body>
+</html>
