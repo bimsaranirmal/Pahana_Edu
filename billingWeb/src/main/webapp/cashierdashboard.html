@@ -10,6 +10,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
         :root {
             --primary: #2B2D42;
@@ -234,6 +236,8 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Retrieve cashier details from sessionStorage
@@ -274,13 +278,24 @@
                 });
             });
 
-            // Handle logout confirmation
+            // Handle logout confirmation with SweetAlert2
             const logoutLink = document.getElementById('logoutLink');
             logoutLink.addEventListener('click', function(event) {
                 event.preventDefault(); // Prevent default link behavior
-                if (confirm('Do you want to exit?')) {
-                    window.location.href = 'index.html'; // Navigate to index.html if confirmed
-                }
+                Swal.fire({
+                    title: 'Confirm Logout',
+                    text: 'Do you want to exit?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#2B2D42',
+                    cancelButtonColor: '#EF233C',
+                    confirmButtonText: 'Yes, Logout',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'index.html'; // Navigate to index.html if confirmed
+                    }
+                });
             });
         });
 

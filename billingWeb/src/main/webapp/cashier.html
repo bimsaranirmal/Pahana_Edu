@@ -10,6 +10,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
         :root {
             --primary: #2B2D42;
@@ -472,6 +474,8 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
     <script>
         const API_BASE_URL = 'http://localhost:8080/billingServices/resources/cashiers';
 
@@ -494,40 +498,7 @@
             document.getElementById('loadingSpinner').classList.add('d-none');
         }
 
-        // Show toast notification
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast align-items-center text-white bg-${type} border-0`;
-            toast.setAttribute('role', 'alert');
-            toast.innerHTML = `
-                <div class="d-flex">
-                    <div class="toast-body">
-                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
-                        ${message}
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                </div>
-            `;
-
-            const container = document.getElementById('toastContainer') || createToastContainer();
-            container.appendChild(toast);
-
-            const bsToast = new bootstrap.Toast(toast);
-            bsToast.show();
-
-            toast.addEventListener('hidden.bs.toast', () => toast.remove());
-        }
-
-        function createToastContainer() {
-            const container = document.createElement('div');
-            container.id = 'toastContainer';
-            container.className = 'toast-container position-fixed top-0 end-0 p-3';
-            container.style.zIndex = '9999';
-            document.body.appendChild(container);
-            return container;
-        }
-
-        // Validate phone number input
+        // Validate phone number input (visual feedback only)
         function validatePhone(input) {
             let value = input.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
             if (value.length > 10) value = value.slice(0, 10); // Limit to 10 digits
@@ -535,10 +506,24 @@
 
             if (input.value.length < 10 && input.value.length > 0) {
                 input.classList.add('phone-error');
-                showToast('Phone number must be exactly 10 digits', 'warning');
             } else {
                 input.classList.remove('phone-error');
             }
+        }
+
+        // Check phone number validity and show SweetAlert if invalid
+        async function checkPhoneNumber(inputId) {
+            const input = document.getElementById(inputId);
+            if (input.value.length < 10 && input.value.length > 0) {
+                await Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Phone Number',
+                    text: 'Phone number must be exactly 10 digits',
+                    confirmButtonColor: '#2B2D42'
+                });
+                return false;
+            }
+            return true;
         }
 
         // Fetch and display all cashiers
@@ -551,7 +536,12 @@
                 updateTotalCount(cashiers.length);
             } catch (error) {
                 console.error('Error fetching cashiers:', error);
-                showToast('Failed to fetch cashiers', 'danger');
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to fetch cashiers',
+                    confirmButtonColor: '#2B2D42'
+                });
             } finally {
                 hideLoading();
             }
@@ -568,7 +558,12 @@
 
                 const response = await fetch(`${API_BASE_URL}/search?${params.toString()}`);
                 if (response.status === 403) {
-                    showToast('Access denied: Admin privileges required for search', 'warning');
+                    await Swal.fire({
+                        icon: 'warning',
+                        title: 'Access Denied',
+                        text: 'Admin privileges required for search',
+                        confirmButtonColor: '#2B2D42'
+                    });
                     return;
                 }
 
@@ -577,7 +572,12 @@
                 updateTotalCount(cashiers.length);
             } catch (error) {
                 console.error('Error searching cashiers:', error);
-                showToast('Failed to search cashiers', 'danger');
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to search cashiers',
+                    confirmButtonColor: '#2B2D42'
+                });
             } finally {
                 hideLoading();
             }
@@ -669,14 +669,29 @@
                 const response = await fetch(`${API_BASE_URL}/${id}/approve`, { method: 'PUT' });
                 const result = await response.json();
                 if (response.ok) {
-                    showToast(result.message || 'Cashier approved successfully');
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: result.message || 'Cashier approved successfully',
+                        confirmButtonColor: '#2B2D42'
+                    });
                     fetchCashiers();
                 } else {
-                    showToast(result.error || 'Failed to approve cashier', 'danger');
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.error || 'Failed to approve cashier',
+                        confirmButtonColor: '#2B2D42'
+                    });
                 }
             } catch (error) {
                 console.error('Error approving cashier:', error);
-                showToast('Failed to approve cashier', 'danger');
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to approve cashier',
+                    confirmButtonColor: '#2B2D42'
+                });
             }
         }
 
@@ -686,32 +701,72 @@
                 const response = await fetch(`${API_BASE_URL}/${id}/reject`, { method: 'PUT' });
                 const result = await response.json();
                 if (response.ok) {
-                    showToast(result.message || 'Cashier rejected successfully');
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: result.message || 'Cashier rejected successfully',
+                        confirmButtonColor: '#2B2D42'
+                    });
                     fetchCashiers();
                 } else {
-                    showToast(result.error || 'Failed to reject cashier', 'danger');
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.error || 'Failed to reject cashier',
+                        confirmButtonColor: '#2B2D42'
+                    });
                 }
             } catch (error) {
                 console.error('Error rejecting cashier:', error);
-                showToast('Failed to reject cashier', 'danger');
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to reject cashier',
+                    confirmButtonColor: '#2B2D42'
+                });
             }
         }
 
         // Delete cashier
         async function deleteCashier(id) {
-            if (confirm('Are you sure you want to delete this cashier? This action cannot be undone.')) {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#2B2D42',
+                cancelButtonColor: '#EF233C',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
                 try {
                     const response = await fetch(`${API_BASE_URL}/${id}`, { method: 'DELETE' });
                     const result = await response.json();
                     if (response.ok) {
-                        showToast(result.message || 'Cashier deleted successfully');
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: result.message || 'Cashier deleted successfully',
+                            confirmButtonColor: '#2B2D42'
+                        });
                         fetchCashiers();
                     } else {
-                        showToast(result.error || 'Failed to delete cashier', 'danger');
+                        await Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: result.error || 'Failed to delete cashier',
+                            confirmButtonColor: '#2B2D42'
+                        });
                     }
                 } catch (error) {
                     console.error('Error deleting cashier:', error);
-                    showToast('Failed to delete cashier', 'danger');
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to delete cashier',
+                        confirmButtonColor: '#2B2D42'
+                    });
                 }
             }
         }
@@ -732,17 +787,29 @@
                     document.getElementById('updatePhone').value = cashier.phone || '';
                     updateModal.show();
                 } else {
-                    showToast(cashier.error || 'Failed to fetch cashier details', 'danger');
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: cashier.error || 'Failed to fetch cashier details',
+                        confirmButtonColor: '#2B2D42'
+                    });
                 }
             } catch (error) {
                 console.error('Error fetching cashier for update:', error);
-                showToast('Failed to fetch cashier details', 'danger');
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to fetch cashier details',
+                    confirmButtonColor: '#2B2D42'
+                });
             }
         }
 
         // Handle update form submission
         document.getElementById('updateForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (!await checkPhoneNumber('updatePhone')) return;
+
             const id = document.getElementById('updateId').value;
             const updatedCashier = {
                 id: parseInt(id),
@@ -763,15 +830,30 @@
                 });
                 const result = await response.json();
                 if (response.ok) {
-                    showToast(result.message || 'Cashier updated successfully');
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: result.message || 'Cashier updated successfully',
+                        confirmButtonColor: '#2B2D42'
+                    });
                     updateModal.hide();
                     fetchCashiers();
                 } else {
-                    showToast(result.error || 'Failed to update cashier', 'danger');
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.error || 'Failed to update cashier',
+                        confirmButtonColor: '#2B2D42'
+                    });
                 }
             } catch (error) {
                 console.error('Error updating cashier:', error);
-                showToast('Failed to update cashier', 'danger');
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update cashier',
+                    confirmButtonColor: '#2B2D42'
+                });
             }
         });
 
@@ -784,6 +866,8 @@
         // Handle create form submission
         document.getElementById('createForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (!await checkPhoneNumber('createPhone')) return;
+
             const newCashier = {
                 name: document.getElementById('createName').value,
                 gender: document.getElementById('createGender').value,
@@ -802,15 +886,30 @@
                 });
                 const result = await response.json();
                 if (response.ok) {
-                    showToast('Cashier created successfully');
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Cashier created successfully',
+                        confirmButtonColor: '#2B2D42'
+                    });
                     createModal.hide();
                     fetchCashiers();
                 } else {
-                    showToast(result.error || 'Failed to create cashier', 'danger');
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.error || 'Failed to create cashier',
+                        confirmButtonColor: '#2B2D42'
+                    });
                 }
             } catch (error) {
                 console.error('Error creating cashier:', error);
-                showToast('Failed to create cashier', 'danger');
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to create cashier',
+                    confirmButtonColor: '#2B2D42'
+                });
             }
         });
 

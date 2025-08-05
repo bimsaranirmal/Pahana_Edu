@@ -10,6 +10,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
         :root {
             --primary: #2B2D42;
@@ -212,13 +214,46 @@
             justify-content: center;
         }
 
-        /* Add custom validation styles */
         .phone-error {
             border-color: #dc3545 !important;
         }
 
         .phone-error:focus {
             box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2) !important;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #customerTable, #customerTable * {
+                visibility: visible;
+            }
+            #customerTable {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .navbar, .footer, .card-header, .row.mb-4, .card.mb-4, .spinner-overlay {
+                display: none !important;
+            }
+            .table thead th {
+                background: #2B2D42 !important;
+                color: white !important;
+            }
+            .table tbody tr {
+                border-bottom: 1px solid #E5E7EB !important;
+            }
+            .action-buttons {
+                display: none !important;
+            }
+            .avatar-sm {
+                display: none !important;
+            }
+            .table tbody td {
+                font-size: 12pt !important;
+            }
         }
     </style>
 </head>
@@ -312,6 +347,9 @@
                 <button id="refreshBtn" class="btn btn-outline-primary">
                     <i class="fas fa-sync-alt me-2"></i>Refresh
                 </button>
+                <button id="printBtn" class="btn btn-outline-primary">
+                    <i class="fas fa-print me-2"></i>Print
+                </button>
                 <span id="totalCount" class="badge bg-primary fs-6">Total: 0</span>
             </div>
         </div>
@@ -332,7 +370,6 @@
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Account Number</th>
-                                
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -476,6 +513,8 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
     <script>
         const API_BASE_URL = 'http://localhost:8080/billingServices/resources/customers';
 
@@ -498,51 +537,32 @@
             document.getElementById('loadingSpinner').classList.add('d-none');
         }
 
-        // Show toast notification
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast align-items-center text-white bg-${type} border-0`;
-            toast.setAttribute('role', 'alert');
-            toast.innerHTML = `
-                <div class="d-flex">
-                    <div class="toast-body">
-                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
-                        ${message}
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                </div>
-            `;
-
-            const container = document.getElementById('toastContainer') || createToastContainer();
-            container.appendChild(toast);
-
-            const bsToast = new bootstrap.Toast(toast);
-            bsToast.show();
-
-            toast.addEventListener('hidden.bs.toast', () => toast.remove());
-        }
-
-        function createToastContainer() {
-            const container = document.createElement('div');
-            container.id = 'toastContainer';
-            container.className = 'toast-container position-fixed top-0 end-0 p-3';
-            container.style.zIndex = '9999';
-            document.body.appendChild(container);
-            return container;
-        }
-
-        // Validate phone number input
+        // Validate phone number input (visual feedback only)
         function validatePhone(input) {
-            let value = input.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
-            if (value.length > 10) value = value.slice(0, 10); // Limit to 10 digits
+            let value = input.value.replace(/[^0-9]/g, '');
+            if (value.length > 10) value = value.slice(0, 10);
             input.value = value;
 
             if (input.value.length < 10 && input.value.length > 0) {
                 input.classList.add('phone-error');
-                showToast('Phone number must be exactly 10 digits', 'warning');
             } else {
                 input.classList.remove('phone-error');
             }
+        }
+
+        // Check phone number validity and show alert if invalid
+        async function checkPhoneNumber(inputId) {
+            const input = document.getElementById(inputId);
+            if (input.value.length < 10 && input.value.length > 0) {
+                await Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Phone Number',
+                    text: 'Phone number must be exactly 10 digits',
+                    confirmButtonColor: '#2B2D42'
+                });
+                return false;
+            }
+            return true;
         }
 
         // Fetch and display all customers
@@ -555,7 +575,12 @@
                 updateTotalCount(customers.length);
             } catch (error) {
                 console.error('Error fetching customers:', error);
-                showToast('Failed to fetch customers', 'danger');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to fetch customers',
+                    confirmButtonColor: '#2B2D42'
+                });
             } finally {
                 hideLoading();
             }
@@ -572,7 +597,12 @@
 
                 const response = await fetch(`${API_BASE_URL}/search?${params.toString()}`);
                 if (response.status === 403) {
-                    showToast('Access denied: Admin privileges required for search', 'warning');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Access Denied',
+                        text: 'Admin privileges required for search',
+                        confirmButtonColor: '#2B2D42'
+                    });
                     return;
                 }
 
@@ -581,7 +611,12 @@
                 updateTotalCount(customers.length);
             } catch (error) {
                 console.error('Error searching customers:', error);
-                showToast('Failed to search customers', 'danger');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to search customers',
+                    confirmButtonColor: '#2B2D42'
+                });
             } finally {
                 hideLoading();
             }
@@ -631,10 +666,8 @@
                     <td>${customer.email}</td>
                     <td>${customer.phone || '-'}</td>
                     <td>${customer.accountNumber || '-'}</td>
-                    
                     <td>
                         <div class="action-buttons d-flex gap-1">
-                            
                             <button onclick="openUpdateModal(${customer.id})" class="btn btn-primary btn-sm" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -665,14 +698,29 @@
                 const response = await fetch(`${API_BASE_URL}/${id}/approve`, { method: 'PUT' });
                 const result = await response.json();
                 if (response.ok) {
-                    showToast(result.message || 'Customer approved successfully');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: result.message || 'Customer approved successfully',
+                        confirmButtonColor: '#2B2D42'
+                    });
                     fetchCustomers();
                 } else {
-                    showToast(result.error || 'Failed to approve customer', 'danger');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.error || 'Failed to approve customer',
+                        confirmButtonColor: '#2B2D42'
+                    });
                 }
             } catch (error) {
                 console.error('Error approving customer:', error);
-                showToast('Failed to approve customer', 'danger');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to approve customer',
+                    confirmButtonColor: '#2B2D42'
+                });
             }
         }
 
@@ -682,32 +730,72 @@
                 const response = await fetch(`${API_BASE_URL}/${id}/reject`, { method: 'PUT' });
                 const result = await response.json();
                 if (response.ok) {
-                    showToast(result.message || 'Customer rejected successfully');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: result.message || 'Customer rejected successfully',
+                        confirmButtonColor: '#2B2D42'
+                    });
                     fetchCustomers();
                 } else {
-                    showToast(result.error || 'Failed to reject customer', 'danger');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.error || 'Failed to reject customer',
+                        confirmButtonColor: '#2B2D42'
+                    });
                 }
             } catch (error) {
                 console.error('Error rejecting customer:', error);
-                showToast('Failed to reject customer', 'danger');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to reject customer',
+                    confirmButtonColor: '#2B2D42'
+                });
             }
         }
 
         // Delete customer
         async function deleteCustomer(id) {
-            if (confirm('Are you sure you want to delete this customer? This action cannot be undone.')) {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#2B2D42',
+                cancelButtonColor: '#EF233C',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
                 try {
                     const response = await fetch(`${API_BASE_URL}/${id}`, { method: 'DELETE' });
                     const result = await response.json();
                     if (response.ok) {
-                        showToast(result.message || 'Customer deleted successfully');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted',
+                            text: result.message || 'Customer deleted successfully',
+                            confirmButtonColor: '#2B2D42'
+                        });
                         fetchCustomers();
                     } else {
-                        showToast(result.error || 'Failed to delete customer', 'danger');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: result.error || 'Failed to delete customer',
+                            confirmButtonColor: '#2B2D42'
+                        });
                     }
                 } catch (error) {
                     console.error('Error deleting customer:', error);
-                    showToast('Failed to delete customer', 'danger');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to delete customer',
+                        confirmButtonColor: '#2B2D42'
+                    });
                 }
             }
         }
@@ -728,17 +816,30 @@
                     document.getElementById('updatePhone').value = customer.phone || '';
                     updateModal.show();
                 } else {
-                    showToast(customer.error || 'Failed to fetch customer details', 'danger');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: customer.error || 'Failed to fetch customer details',
+                        confirmButtonColor: '#2B2D42'
+                    });
                 }
             } catch (error) {
                 console.error('Error fetching customer for update:', error);
-                showToast('Failed to fetch customer details', 'danger');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to fetch customer details',
+                    confirmButtonColor: '#2B2D42'
+                });
             }
         }
 
         // Handle update form submission
         document.getElementById('updateForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const isPhoneValid = await checkPhoneNumber('updatePhone');
+            if (!isPhoneValid) return;
+
             const id = document.getElementById('updateId').value;
             const updatedCustomer = {
                 id: parseInt(id),
@@ -759,15 +860,30 @@
                 });
                 const result = await response.json();
                 if (response.ok) {
-                    showToast(result.message || 'Customer updated successfully');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: result.message || 'Customer updated successfully',
+                        confirmButtonColor: '#2B2D42'
+                    });
                     updateModal.hide();
                     fetchCustomers();
                 } else {
-                    showToast(result.error || 'Failed to update customer', 'danger');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.error || 'Failed to update customer',
+                        confirmButtonColor: '#2B2D42'
+                    });
                 }
             } catch (error) {
                 console.error('Error updating customer:', error);
-                showToast('Failed to update customer', 'danger');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update customer',
+                    confirmButtonColor: '#2B2D42'
+                });
             }
         });
 
@@ -780,6 +896,9 @@
         // Handle create form submission
         document.getElementById('createForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const isPhoneValid = await checkPhoneNumber('createPhone');
+            if (!isPhoneValid) return;
+
             const newCustomer = {
                 name: document.getElementById('createName').value,
                 gender: document.getElementById('createGender').value,
@@ -798,15 +917,30 @@
                 });
                 const result = await response.json();
                 if (response.ok) {
-                    showToast('Customer created successfully');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Customer created successfully',
+                        confirmButtonColor: '#2B2D42'
+                    });
                     createModal.hide();
                     fetchCustomers();
                 } else {
-                    showToast(result.error || 'Failed to create customer', 'danger');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.error || 'Failed to create customer',
+                        confirmButtonColor: '#2B2D42'
+                    });
                 }
             } catch (error) {
                 console.error('Error creating customer:', error);
-                showToast('Failed to create customer', 'danger');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to create customer',
+                    confirmButtonColor: '#2B2D42'
+                });
             }
         });
 
@@ -835,6 +969,21 @@
         document.getElementById('refreshBtn').addEventListener('click', () => {
             document.getElementById('searchForm').reset();
             fetchCustomers();
+        });
+
+        // Print customer table
+        document.getElementById('printBtn').addEventListener('click', () => {
+            const table = document.getElementById('customerTable');
+            if (table.querySelector('tbody').children.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Data',
+                    text: 'No customer data to print',
+                    confirmButtonColor: '#2B2D42'
+                });
+                return;
+            }
+            window.print();
         });
     </script>
 </body>
